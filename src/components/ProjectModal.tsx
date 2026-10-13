@@ -7,7 +7,7 @@ import { ProjectArt } from './Poster';
 
 const block = {
   hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
-  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.7, ease: EASE } },
+  show: { opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' }, transition: { duration: 0.7, ease: EASE } },
 };
 
 export default function ProjectModal({ project, onClose, onSwitch }: { project: Project; onClose: () => void; onSwitch: (p: Project) => void }) {
@@ -43,7 +43,7 @@ export default function ProjectModal({ project, onClose, onSwitch }: { project: 
         exit={{ opacity: 0 }}
         onClick={onClose}
       />
-      <div ref={scroller} data-lenis-prevent className="absolute inset-0 overflow-y-auto overscroll-contain" onClick={onClose}>
+      <div ref={scroller} className="absolute inset-0 overflow-y-auto overscroll-contain" onClick={onClose}>
         <motion.div
           className="relative mx-auto min-h-full max-w-5xl bg-ink-2 shadow-2xl sm:my-10 sm:min-h-0 sm:rounded-2xl"
           onClick={(e) => e.stopPropagation()}
@@ -154,11 +154,12 @@ export default function ProjectModal({ project, onClose, onSwitch }: { project: 
             {/* impact */}
             <motion.section variants={block} className="mt-12">
               <h3 className="mb-4 text-[11px] font-bold uppercase tracking-[0.3em] text-crimson-2">Result / Impact</h3>
-              <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-white/10 sm:grid-cols-3 lg:grid-cols-5">
+              {/* auto-fit: rows fill edge to edge whether a project has 2 results or 5 — no empty cells */}
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2">
                 {project.metrics.map((m, i) => (
                   <motion.div
                     key={m.label}
-                    className="bg-ink p-4 sm:p-5"
+                    className="rounded-lg bg-ink p-4 ring-1 ring-white/[0.07] sm:p-5"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.5 + i * 0.07, duration: 0.5, ease: EASE }}

@@ -220,9 +220,9 @@ export const projects: Project[] = [
       'Period-over-period Excel reports that flag bottlenecks',
     ],
     metrics: [
-      { value: '4', label: 'supply chain signals in one view' },
-      { value: 'SQL', label: 'historical & near-real-time order data' },
-      { value: 'Excel', label: 'period-over-period comparisons' },
+      { value: '4', label: 'signals in one view: inventory, orders, delays, distribution' },
+      { value: '1', label: 'single view of supply chain health' },
+      { value: '3', label: 'tools: SQL, Power BI and Excel' },
     ],
     palette: { from: '#04121f', via: '#0f4c6e', to: '#05080d', accent: '#4cc9ff' },
     brief: 'Supply chain health was spread across inventory, order, delivery and distribution data, with no single view for spotting delays and bottlenecks.',
@@ -255,8 +255,8 @@ export const projects: Project[] = [
     ],
     metrics: [
       { value: '3', label: 'layers: data prep → model → KPI views' },
-      { value: '1', label: 'unified reporting model' },
-      { value: 'E2E', label: 'built end-to-end in Power BI' },
+      { value: '1', label: 'unified reporting model across datasets' },
+      { value: '3', label: 'tools: Power BI, SQL and Excel' },
     ],
     palette: { from: '#120822', via: '#3d1a6e', to: '#07060c', accent: '#b98bff' },
     brief: 'Business metrics lived in several datasets, so reports disagreed and stakeholders had no central view of performance.',

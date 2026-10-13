@@ -1,5 +1,4 @@
 import { createContext, useCallback, useContext, useEffect, useRef, type ReactNode } from 'react';
-import Lenis from 'lenis';
 import { useReducedMotionPref } from './useMedia';
 
 type ScrollApi = {
@@ -10,52 +9,38 @@ type ScrollApi = {
 
 const ScrollCtx = createContext<ScrollApi | null>(null);
 
+/**
+ * Page scrolling is native — it follows the wheel, trackpad and touch exactly, with no
+ * smoothing lag. This provider only adds animated jumps to sections and a scroll lock for overlays.
+ */
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const reduced = useReducedMotionPref();
-  const lenisRef = useRef<Lenis | null>(null);
   const locks = useRef(0);
 
-  useEffect(() => {
-    if (reduced) return;
-    const lenis = new Lenis({ duration: 1.15, smoothWheel: true, easing: (t) => 1 - Math.pow(1 - t, 4) });
-    lenisRef.current = lenis;
-    let raf = 0;
-    const loop = (time: number) => {
-      lenis.raf(time);
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-    return () => {
-      cancelAnimationFrame(raf);
-      lenis.destroy();
-      lenisRef.current = null;
-    };
-  }, [reduced]);
-
-  const scrollTo = useCallback<ScrollApi['scrollTo']>((target, opts = {}) => {
-    const offset = opts.offset ?? -72;
-    const el = typeof target === 'string' ? document.querySelector<HTMLElement>(target) : target;
-    if (el === null) return;
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(el, { offset, immediate: opts.immediate, duration: 1.4 });
-    } else {
-      const top = typeof el === 'number' ? el : el.getBoundingClientRect().top + window.scrollY + offset;
-      window.scrollTo({ top, behavior: opts.immediate ? 'auto' : 'smooth' });
-    }
-  }, []);
+  const scrollTo = useCallback<ScrollApi['scrollTo']>(
+    (target, opts = {}) => {
+      const offset = opts.offset ?? -72;
+      let top: number;
+      if (typeof target === 'number') {
+        top = target;
+      } else {
+        const el = typeof target === 'string' ? document.querySelector<HTMLElement>(target) : target;
+        if (!el) return;
+        top = el.getBoundingClientRect().top + window.scrollY + offset;
+      }
+      window.scrollTo({ top, behavior: opts.immediate || reduced ? 'auto' : 'smooth' });
+    },
+    [reduced],
+  );
 
   const lock = useCallback(() => {
     locks.current += 1;
-    lenisRef.current?.stop();
     document.documentElement.style.overflow = 'hidden';
   }, []);
 
   const unlock = useCallback(() => {
     locks.current = Math.max(0, locks.current - 1);
-    if (locks.current === 0) {
-      lenisRef.current?.start();
-      document.documentElement.style.overflow = '';
-    }
+    if (locks.current === 0) document.documentElement.style.overflow = '';
   }, []);
 
   return <ScrollCtx.Provider value={{ scrollTo, lock, unlock }}>{children}</ScrollCtx.Provider>;

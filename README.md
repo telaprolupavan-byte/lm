@@ -97,11 +97,11 @@ src/
     ResumeViewer/ResumeModal ← designed resume sheet, PDF viewer, download
     FinalCTA               ← TO BE CONTINUED… + contact links
     CustomCursor, fx.tsx   ← cursor states, magnetic buttons, 3D tilt, text reveals, particles
-  hooks/                   ← Lenis smooth scroll + scroll lock, media queries, watch progress
+  hooks/                   ← section jumps + scroll lock, media queries, watch progress
 scripts/build-images.mjs   ← portrait/share-image pipeline (sharp)
 ```
 
-**Stack:** React 18, TypeScript, Vite 6, Tailwind CSS 4, Framer Motion 11, Lenis.
+**Stack:** React 18, TypeScript, Vite 6, Tailwind CSS 4, Framer Motion 11.
 
 ## The Dashboard
 
@@ -113,7 +113,14 @@ The career report is computed from the data file, so it stays in sync with the r
 
 ## Accessibility and performance
 
-- `prefers-reduced-motion` is respected: smooth scroll, the custom cursor, tilt, particles, grain, the key-visual animation and the pinned horizontal scroll turn off, and the opening jumps straight to its final frame.
+**Scrolling is native.** No smooth-scroll library, so the page follows the wheel, trackpad and touch exactly. To keep it fast, effects follow a few rules. Please keep them when editing:
+
+- Nothing animates `filter: blur()` or `backdrop-filter` while the page scrolls; blur is only used in overlays and the opening.
+- Sections fade in once as they arrive, instead of recomputing on every scroll frame.
+- Looping motion (floating chips, grain) is pure CSS `transform`/`opacity`, which the GPU handles without repainting.
+- The data-art key visual carries its own fade and no CSS filter, so it's never re-rendered while scrolling.
+
+- `prefers-reduced-motion` is respected: smooth section jumps, the custom cursor, tilt, particles, grain, the key-visual animation and the pinned horizontal scroll turn off, and the opening jumps straight to its final frame.
 - Hover effects only run on devices with a precise pointer. Touch devices get tap interactions and native swipe rails.
 - The custom cursor appears only with a mouse or trackpad.
 - Overlays close with Esc, and the highlight reel supports Space and the ← → keys.

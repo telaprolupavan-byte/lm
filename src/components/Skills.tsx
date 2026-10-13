@@ -12,7 +12,7 @@ export default function Skills() {
 
   return (
     <>
-      <SectionHeading kicker="Genres" title="My Skill Universe" aside={<p className="max-w-xs text-sm text-mist">Hover or tap a skill to see where it shows up across my work and projects.</p>} />
+      <SectionHeading kicker="Genres" title="My Skill Universe" aside={<p className="max-w-xs text-sm text-mist">Each skill shows where it appears in my work and projects.</p>} />
 
       <div className="gutter grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-14">
         {/* genre list */}
@@ -60,56 +60,36 @@ export default function Skills() {
 }
 
 function SkillCard({ skill, hue }: { skill: Skill; hue: string }) {
-  const [open, setOpen] = useState(false);
   const evidence = skillEvidence[skill.name];
 
+  // Where each skill was used is always visible — no hover needed, so it reads the same on phones.
   return (
-    <motion.button
-      type="button"
-      onHoverStart={() => setOpen(true)}
-      onHoverEnd={() => setOpen(false)}
-      onClick={() => setOpen((o) => !o)}
-      aria-expanded={open}
+    <motion.article
       variants={{
-        hidden: { opacity: 0, y: 24, scale: 0.94, filter: 'blur(6px)' },
-        show: { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', transition: { duration: 0.55, ease: EASE } },
+        hidden: { opacity: 0, y: 24, scale: 0.94 },
+        show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.55, ease: EASE } },
         exit: { opacity: 0, y: -12, transition: { duration: 0.2 } },
       }}
       whileHover={{ y: -6 }}
       className="group relative flex min-h-[148px] flex-col overflow-hidden rounded-xl bg-ink-2 p-4 text-left ring-1 ring-white/10 transition-shadow duration-500 hover:ring-white/20"
-      style={{ boxShadow: open ? `0 18px 50px -12px ${hue}55, 0 0 0 1px ${hue}66` : undefined }}
     >
       <div aria-hidden className="absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-0 blur-2xl transition duration-500 group-hover:opacity-60" style={{ background: hue }} />
-      <motion.span
-        className="relative flex h-12 w-12 items-center justify-center rounded-lg font-display text-2xl tracking-wide"
+      <span
+        className="relative flex h-12 w-12 items-center justify-center rounded-lg font-display text-2xl tracking-wide transition-transform duration-300 group-hover:scale-110"
         style={{ background: `${hue}1f`, color: hue, boxShadow: `inset 0 0 0 1px ${hue}55` }}
-        animate={open ? { rotate: [0, -8, 8, 0], scale: 1.08 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5 }}
         aria-hidden
       >
         {skill.mono}
-      </motion.span>
-      <span className="relative mt-4 flex items-center gap-2 text-[15px] font-semibold text-bone">
+      </span>
+      <h4 className="relative mt-4 flex flex-wrap items-center gap-2 text-[15px] font-semibold text-bone">
         {skill.name}
         {skill.note && (
           <span className="rounded px-1.5 py-px text-[9px] font-bold uppercase tracking-wider text-ink" style={{ background: hue }}>
             {skill.note}
           </span>
         )}
-      </span>
-      <AnimatePresence initial={false}>
-        {open && evidence && (
-          <motion.span
-            className="relative mt-2 block text-[11px] leading-snug text-mist"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {evidence.join(' · ')}
-          </motion.span>
-        )}
-      </AnimatePresence>
-    </motion.button>
+      </h4>
+      <p className="relative mt-2 text-[11px] leading-snug text-mist">{evidence ? evidence.join(' · ') : 'Listed in technical skills'}</p>
+    </motion.article>
   );
 }

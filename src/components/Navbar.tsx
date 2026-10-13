@@ -60,15 +60,15 @@ export default function Navbar({ order, profileId, onSwitch }: { order: SectionI
       transition={{ duration: 0.45, ease: EASE }}
     >
       <div
-        className={`gutter flex h-16 items-center justify-between gap-6 transition-[background,backdrop-filter] duration-500 md:h-[72px] ${
-          solid || mobileNav ? 'bg-ink/80 backdrop-blur-xl' : 'bg-gradient-to-b from-black/80 to-transparent'
+        className={`gutter flex h-16 items-center justify-between gap-6 transition-[background] duration-500 md:h-[72px] ${
+          solid || mobileNav ? 'bg-ink/95' : 'bg-gradient-to-b from-black/80 to-transparent'
         }`}
       >
-        <div className="flex items-center gap-8 lg:gap-10">
+        <div className="flex items-center gap-8 lg:gap-6 xl:gap-10">
           <button type="button" onClick={() => go('top')} className="text-[22px]" aria-label="Back to top">
             <SeriesMark />
           </button>
-          <nav className="hidden items-center gap-6 lg:flex" aria-label="Sections">
+          <nav className="hidden items-center gap-4 lg:flex xl:gap-6" aria-label="Sections">
             <NavLink label="Home" active={active === 'top'} onClick={() => go('top')} />
             {order.map((id) => (
               <NavLink key={id} label={sectionMeta[id].nav} active={active === id} onClick={() => go(id)} />
@@ -80,7 +80,7 @@ export default function Navbar({ order, profileId, onSwitch }: { order: SectionI
           <button
             type="button"
             onClick={() => go('contact')}
-            className="hidden rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold tracking-[0.14em] text-bone transition hover:border-crimson-2 hover:text-crimson-2 sm:block"
+            className="hidden whitespace-nowrap rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold tracking-[0.14em] text-bone transition hover:border-crimson-2 hover:text-crimson-2 sm:block"
           >
             LET&apos;S TALK
           </button>
@@ -176,7 +176,7 @@ export default function Navbar({ order, profileId, onSwitch }: { order: SectionI
 
 function NavLink({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} className={`relative text-[13px] font-medium transition ${active ? 'text-bone' : 'text-mist hover:text-bone'}`}>
+    <button type="button" onClick={onClick} className={`relative whitespace-nowrap text-[13px] font-medium transition ${active ? 'text-bone' : 'text-mist hover:text-bone'}`}>
       {label}
       {active && <motion.span layoutId="nav-underline" className="absolute -bottom-1.5 left-0 right-0 h-[2px] rounded bg-crimson" />}
     </button>

@@ -73,7 +73,7 @@ export function Tilt({
   );
 }
 
-/** Word-by-word blur-to-focus reveal for headings. */
+/** Word-by-word rise-in reveal for headings. */
 export function RevealText({ text, className = '', delay = 0, as = 'span' }: { text: string; className?: string; delay?: number; as?: 'span' | 'h2' | 'h3' | 'p' }) {
   const Tag = motion[as];
   const words = text.split(' ');
@@ -91,8 +91,8 @@ export function RevealText({ text, className = '', delay = 0, as = 'span' }: { t
           <motion.span
             className="inline-block"
             variants={{
-              hidden: { y: '105%', opacity: 0, filter: 'blur(8px)' },
-              show: { y: '0%', opacity: 1, filter: 'blur(0px)', transition: { duration: 0.9, ease: EASE } },
+              hidden: { y: '105%', opacity: 0 },
+              show: { y: '0%', opacity: 1, transition: { duration: 0.9, ease: EASE } },
             }}
           >
             {w}

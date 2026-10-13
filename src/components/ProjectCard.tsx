@@ -7,8 +7,8 @@ export default function ProjectCard({ project, index, onOpen }: { project: Proje
   return (
     <motion.article
       className="w-[84vw] shrink-0 snap-start sm:w-[62vw] lg:w-[46vw] xl:w-[42vw]"
-      initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
-      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '0px -10% 0px 0px' }}
       transition={{ duration: 0.9, delay: index * 0.08, ease: EASE }}
     >
@@ -47,7 +47,7 @@ export default function ProjectCard({ project, index, onOpen }: { project: Proje
             <p className="mt-3 max-w-md text-sm leading-relaxed text-bone/75 sm:text-[15px]">{project.logline}</p>
             <div className="mt-4 flex flex-wrap gap-1.5">
               {project.stack.map((t) => (
-                <span key={t} className="rounded-full bg-black/35 px-2.5 py-1 text-[11px] font-medium text-bone/90 backdrop-blur">
+                <span key={t} className="rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-medium text-bone/90">
                   {t}
                 </span>
               ))}
@@ -61,7 +61,7 @@ export default function ProjectCard({ project, index, onOpen }: { project: Proje
                   rel="noreferrer"
                   data-cursor="link"
                   onClick={(e) => e.stopPropagation()}
-                  className="flex min-h-11 items-center gap-2 rounded-md border border-white/25 bg-black/30 px-4 text-sm font-semibold text-bone backdrop-blur transition hover:border-bone"
+                  className="flex min-h-11 items-center gap-2 rounded-md border border-white/25 bg-black/50 px-4 text-sm font-semibold text-bone transition hover:border-bone"
                 >
                   GitHub ↗
                 </a>

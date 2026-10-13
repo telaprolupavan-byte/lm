@@ -119,7 +119,7 @@ export default function OpeningSequence({ onDone }: { onDone: () => void }) {
       {/* role + play */}
       <div className="absolute inset-x-0 bottom-[9vh] z-20 flex flex-col items-center gap-6 px-4 text-center">
         <motion.p
-          className="font-sans text-[10px] font-semibold uppercase tracking-[0.22em] text-bone/90 sm:text-sm sm:tracking-[0.4em]"
+          className="font-sans text-[10px] font-semibold uppercase tracking-[0.22em] text-bone/90 [text-shadow:0_2px_14px_rgba(0,0,0,0.95)] sm:text-sm sm:tracking-[0.4em]"
           initial={{ opacity: 0, y: 14 }}
           animate={beat >= 5 ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, ease: EASE }}

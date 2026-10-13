@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { seasons } from '../data/portfolio';
 import { EASE, SectionHeading } from './fx';
@@ -6,9 +6,22 @@ import EpisodeCard from './EpisodeCard';
 import { RailButtons } from './Rail';
 
 export default function Seasons() {
-  const [active, setActive] = useState(seasons.length - 2);
+  // Open on the latest season — the one she's in now.
+  const [active, setActive] = useState(seasons.length - 1);
   const season = seasons[active];
   const rail = useRef<HTMLDivElement>(null);
+  const tabs = useRef<HTMLDivElement>(null);
+
+  // On narrow screens the selected season can start off-screen — scroll its tab into view (sideways only).
+  useEffect(() => {
+    const row = tabs.current;
+    const tab = row?.querySelector<HTMLElement>('[aria-selected="true"]');
+    if (!row || !tab) return;
+    const pad = parseFloat(getComputedStyle(row).paddingLeft) || 0;
+    if (tab.offsetLeft + tab.offsetWidth > row.scrollLeft + row.clientWidth || tab.offsetLeft < row.scrollLeft) {
+      row.scrollTo({ left: tab.offsetLeft - pad, behavior: 'smooth' });
+    }
+  }, [active]);
 
   return (
     <>
@@ -19,7 +32,7 @@ export default function Seasons() {
       />
 
       {/* season selector */}
-      <div className="rail gutter mb-8 flex gap-2 overflow-x-auto" role="tablist" aria-label="Seasons">
+      <div ref={tabs} className="rail gutter relative mb-8 flex gap-2 overflow-x-auto" role="tablist" aria-label="Seasons">
         {seasons.map((s, i) => (
           <button
             key={s.number}
@@ -43,7 +56,7 @@ export default function Seasons() {
         <motion.div
           key={season.number}
           initial={{ opacity: 0, x: 40, filter: 'blur(8px)' }}
-          animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+          animate={{ opacity: 1, x: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
           exit={{ opacity: 0, x: -40, filter: 'blur(8px)' }}
           transition={{ duration: 0.55, ease: EASE }}
         >

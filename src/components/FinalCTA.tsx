@@ -1,17 +1,11 @@
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { profile } from '../data/portfolio';
 import { useSmoothScroll } from '../hooks/smoothScroll';
 import { EASE, Magnetic, Particles } from './fx';
 import { SeriesMark } from './Poster';
 
 export default function FinalCTA({ onReplay }: { onReplay: () => void }) {
-  const ref = useRef<HTMLElement>(null);
   const { scrollTo } = useSmoothScroll();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'start 0.2'] });
-  const spacing = useTransform(scrollYProgress, [0, 1], ['0.6em', '0.02em']);
-  const blur = useTransform(scrollYProgress, [0, 1], ['blur(16px)', 'blur(0px)']);
-  const opacity = useTransform(scrollYProgress, [0.1, 0.9], [0, 1]);
 
   // Buttons appear only for the contact details filled in on `profile`.
   const ctas = [
@@ -22,7 +16,7 @@ export default function FinalCTA({ onReplay }: { onReplay: () => void }) {
   ].filter((c): c is { label: string; href: string; primary?: boolean; cursor: string } => Boolean(c));
 
   return (
-    <section id="contact" ref={ref} className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-4 py-24 text-center">
+    <section id="contact" className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-4 py-24 text-center">
       <div aria-hidden className="absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_60%,rgba(229,19,43,0.18),transparent_70%)]" />
       <Particles count={36} />
 
@@ -36,7 +30,11 @@ export default function FinalCTA({ onReplay }: { onReplay: () => void }) {
       </motion.p>
       <motion.h2
         className="relative font-display leading-[0.85] text-bone"
-        style={{ fontSize: 'clamp(3.4rem, 13vw, 12rem)', letterSpacing: spacing, filter: blur, opacity }}
+        style={{ fontSize: 'clamp(3.4rem, 13vw, 12rem)' }}
+        initial={{ opacity: 0, letterSpacing: '0.3em' }}
+        whileInView={{ opacity: 1, letterSpacing: '0.02em' }}
+        viewport={{ once: true, margin: '-20% 0px' }}
+        transition={{ duration: 1.4, ease: EASE }}
       >
         TO BE CONTINUED…
       </motion.h2>

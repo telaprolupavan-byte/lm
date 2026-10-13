@@ -77,7 +77,8 @@ function PinnedOriginals({ onOpen }: { onOpen: (p: Project) => void }) {
   const bar = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   return (
-    <div ref={wrap} style={{ height: `calc(100vh + ${dist}px)` }} className="relative">
+    // The row moves 1px sideways for every 0.6px scrolled, so getting through it doesn't drag.
+    <div ref={wrap} style={{ height: `calc(100vh + ${Math.round(dist * 0.6)}px)` }} className="relative">
       <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
         <div aria-hidden className="absolute inset-0 bg-[radial-gradient(50%_60%_at_70%_50%,rgba(229,19,43,0.10),transparent_70%)]" />
         <motion.div ref={track} style={{ x }} className="gutter relative flex items-center gap-8 pr-[12vw]" data-cursor="drag">

@@ -26,17 +26,6 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
 body {
   margin: 0;
   background: var(--color-ink);
@@ -61,7 +50,7 @@ body {
 /* Film grain — a single fixed layer, cheap and subtle */
 .grain {
   position: fixed;
-  inset: -50%;
+  inset: -8%;
   pointer-events: none;
   z-index: 90;
   opacity: 0.055;
@@ -86,6 +75,10 @@ body {
 .rail::-webkit-scrollbar {
   display: none;
 }
+/* Snap rails keep their side margin: without scroll padding, snapping pulls the first card flush to the edge */
+.rail.gutter {
+  scroll-padding-inline: var(--gutter);
+}
 
 /* Custom cursor: hide the native one only when ours is active */
 .has-custom-cursor,
@@ -101,10 +94,9 @@ body {
 }
 
 .glass {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  /* No backdrop-filter: it re-blurs the page behind every glass element on each scroll frame. */
+  background: linear-gradient(180deg, rgba(40, 40, 48, 0.72), rgba(24, 24, 30, 0.72));
   border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
 }
 
 .focus-ring:focus-visible,
@@ -139,7 +131,17 @@ a:focus-visible {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: shimmer 6s linear infinite;
+  /* Two sweeps on arrival, then still — an endless shimmer repaints the giant title every frame. */
+  animation: shimmer 6s linear 2;
+}
+
+/* Gentle bob for the hero's floating chips */
+.float-y {
+  animation: float-y 5s ease-in-out infinite;
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 
 /* Data-art key visual (stands in for the portrait) */
@@ -162,24 +164,15 @@ a:focus-visible {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-.key-art-pulse {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: pulse 2.4s ease-out infinite;
-}
-@keyframes pulse {
-  from { transform: scale(1); opacity: 0.9; }
-  to { transform: scale(3.2); opacity: 0; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .grain,
   .light-streak,
   .shimmer-text,
+  .float-y,
   .key-art-bar,
   .key-art-line,
-  .key-art-ring,
-  .key-art-pulse {
+  .key-art-ring {
     animation: none !important;
   }
   .light-streak {

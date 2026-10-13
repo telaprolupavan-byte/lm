@@ -8,7 +8,8 @@ const progress: Record<string, number> = {};
 const listeners = new Set<() => void>();
 let snapshot = { ...progress };
 
-function set(id: string, value: number) {
+function set(id: string, raw: number) {
+  const value = raw >= 0.99 ? 1 : Math.floor(raw * 50) / 50;
   if ((progress[id] ?? 0) >= value) return;
   progress[id] = value;
   snapshot = { ...progress };

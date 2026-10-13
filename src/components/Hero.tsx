@@ -10,7 +10,8 @@ import { Portrait } from './Portrait';
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.09, delayChildren: 0.25 } } };
 const item = {
   hidden: { opacity: 0, y: 28, filter: 'blur(10px)' },
-  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.9, ease: EASE } },
+  // transitionEnd clears the filter: even blur(0px) keeps a filter on the element.
+  show: { opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' }, transition: { duration: 0.9, ease: EASE } },
 };
 
 export default function Hero({ onPlay, onResume, profileId }: { onPlay: () => void; onResume: () => void; profileId: ProfileId }) {
@@ -20,7 +21,6 @@ export default function Hero({ onPlay, onResume, profileId }: { onPlay: () => vo
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '18%']);
-  const imgScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
   const textY = useTransform(scrollYProgress, [0, 1], ['0%', '-30%']);
   const fade = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
   const blackout = useTransform(scrollYProgress, [0.35, 1], [0, 1]);
@@ -64,14 +64,14 @@ export default function Hero({ onPlay, onResume, profileId }: { onPlay: () => vo
       <Particles className="z-[1]" />
       <div aria-hidden className="absolute inset-0 z-[1] overflow-hidden">
         <span className="light-streak left-[40%] top-[22%] w-[50vw]" style={{ animationDelay: '1.2s' }} />
-        <span className="light-streak left-[30%] top-[64%] w-[40vw]" style={{ animationDelay: '3.6s' }} />
+        <span className="light-streak left-[52%] top-[72%] w-[40vw]" style={{ animationDelay: '3.6s' }} />
         <span className="light-streak left-[55%] top-[44%] w-[30vw]" style={{ animationDelay: '5.2s' }} />
       </div>
 
       {/* portrait */}
       <motion.div
         className="absolute inset-x-0 top-12 z-[2] flex h-[64svh] items-end justify-center sm:h-[70svh] lg:bottom-0 lg:left-auto lg:right-[3vw] lg:top-20 lg:h-auto lg:w-[54vw] xl:right-[6vw] xl:w-[48vw]"
-        style={{ y: imgY, scale: imgScale, opacity: fade }}
+        style={{ y: imgY, opacity: fade }}
       >
         <motion.div
           className="relative h-full w-full lg:h-[86vh]"
@@ -189,13 +189,14 @@ function FloatChip({ text, sub, pos, depth, index, mx, my }: { text: string; sub
       className={`glass absolute hidden rounded-xl px-4 py-2.5 md:block ${pos}`}
       style={{ x, y }}
       initial={{ opacity: 0, filter: 'blur(6px)' }}
-      animate={{ opacity: 1, filter: 'blur(0px)' }}
+      animate={{ opacity: 1, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
       transition={{ duration: 0.9, delay: 1.2 + index * 0.18, ease: EASE }}
     >
-      <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 5 + index, repeat: Infinity, ease: 'easeInOut' }}>
+      {/* CSS float: runs on the compositor instead of a JavaScript frame loop */}
+      <div className="float-y" style={{ animationDuration: `${5 + index}s` }}>
         <p className="text-sm font-semibold text-bone">{text}</p>
         <p className="text-[10px] uppercase tracking-[0.2em] text-mist">{sub}</p>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }

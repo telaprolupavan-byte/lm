@@ -144,13 +144,12 @@ function CountUp({ kpi, delay }: { kpi: Kpi; delay: number }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: '-10% 0px' });
   const reduced = useReducedMotionPref();
-  const [v, setV] = useState(reduced ? kpi.value : 0);
+  // Tiny values (4+, 1M+) don't count — "0M+" on the way up reads like a typo.
+  const still = reduced || kpi.value < 5;
+  const [v, setV] = useState(still ? kpi.value : 0);
 
   useEffect(() => {
-    if (!inView || reduced) {
-      if (reduced) setV(kpi.value);
-      return;
-    }
+    if (!inView || still) return;
     let raf = 0;
     const start = performance.now() + delay * 1000;
     const tick = (now: number) => {
@@ -160,7 +159,7 @@ function CountUp({ kpi, delay }: { kpi: Kpi; delay: number }) {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [inView, reduced, kpi.value, delay]);
+  }, [inView, still, kpi.value, delay]);
 
   return (
     <span ref={ref} aria-label={format(kpi)}>

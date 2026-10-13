@@ -49,7 +49,7 @@ export default function ResumeModal({ onClose }: { onClose: () => void }) {
         transition={{ duration: 0.6, ease: EASE }}
       >
         {sheetOnly ? (
-          <div data-lenis-prevent className="h-full overflow-y-auto">
+          <div className="h-full overflow-y-auto">
             <ResumeSheet />
             {profile.resumePdf && (
               <a href={profile.resumePdf} target="_blank" rel="noreferrer" className="glass mt-4 flex min-h-12 items-center justify-center rounded-md text-sm font-semibold text-bone">
