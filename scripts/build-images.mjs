@@ -32,8 +32,9 @@ if (existsSync('pic1.jpeg') && existsSync('pic.png')) {
   }
   cutout = await sharp(rgba, { raw: { width, height, channels: 4 } }).png().toBuffer();
 
+  // Never upscale: a size wider than the source is written at the source width.
   for (const w of [1100, 720, 420]) {
-    await sharp(cutout).resize({ width: w }).webp({ quality: 86, alphaQuality: 90 }).toFile(`${OUT}/portrait-${w}.webp`);
+    await sharp(cutout).resize({ width: w, withoutEnlargement: true }).webp({ quality: 80, alphaQuality: 90, effort: 6 }).toFile(`${OUT}/portrait-${w}.webp`);
   }
   console.log('portraits built');
 } else {
