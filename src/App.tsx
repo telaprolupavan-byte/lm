@@ -10,6 +10,7 @@ import Hero from './components/Hero';
 import ContinueWatching from './components/ContinueWatching';
 import Scene from './components/Scene';
 import About from './components/About';
+import CareerReport from './components/CareerReport';
 import Seasons from './components/Seasons';
 import Originals from './components/Originals';
 import TopPicks from './components/TopPicks';
@@ -95,6 +96,7 @@ function Series() {
 
   const sections: Record<SectionId, ReactNode> = {
     about: <About />,
+    report: <CareerReport />,
     journey: <Seasons />,
     originals: <Originals onOpen={setProject} />,
     picks: <TopPicks />,

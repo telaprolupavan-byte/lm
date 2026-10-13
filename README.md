@@ -34,7 +34,8 @@ The static site is written to `dist/` and can be deployed as-is to Vercel, Netli
 | Name, intro, location, core toolkit | `profile` |
 | Email, phone, LinkedIn, GitHub | `profile.email`, `profile.phone`, `profile.links` (empty values are hidden) |
 | Work history | `experience` |
-| A project, or a new one | `projects` (add an object; it appears in Originals, the overlay and the counts) |
+| A project, or a new one | `projects` (add an object; it appears in Originals, the overlay and the counts). `brief` and `pipeline` drive the case-study overlay |
+| The Dashboard (career report) | `careerKpis`, `impactByRole`, `timeline`, `toolRows`, `toolColumns` |
 | Impact highlight cards | `achievements` |
 | Certifications | `certifications` (empty today; add entries and the "Certified" row appears) |
 | Skills and their "where it's used" notes | `skillCategories`, `skillEvidence` |
@@ -86,9 +87,10 @@ src/
     PlayIntro              ← ▶ Play Intro: zoom into portrait → highlight reel (pause, ← →, tap zones)
     ContinueWatching       ← cards with real "watched" progress bars
     About                  ← The Pilot
+    CareerReport           ← The Dashboard: KPI tiles, career timeline, impact bars, tools × roles heatmap with evidence
     Seasons / EpisodeCard  ← My Journey as seasons and episodes
     Originals / ProjectCard← pinned horizontal sequence on desktop, swipe rail on touch
-    ProjectModal           ← full-screen project overlay with a shared-element transition
+    ProjectModal           ← case-study overlay: brief, pipeline, impact, contribution (shared-element transition)
     TopPicks               ← Top 10-style row
     Skills                 ← skill genres; each card shows where the skill appears
     Achievements           ← impact "award" cards (+ certification rail when there are any)
@@ -100,6 +102,14 @@ scripts/build-images.mjs   ← portrait/share-image pipeline (sharp)
 ```
 
 **Stack:** React 18, TypeScript, Vite 6, Tailwind CSS 4, Framer Motion 11, Lenis.
+
+## The Dashboard
+
+The career report is computed from the data file, so it stays in sync with the resume:
+
+- **KPI tiles** count up when they scroll into view; sums (14 dashboards, 65 stakeholders) are totals across roles.
+- **Tools in action** counts the resume bullets that mention each tool, per role and project (`toolRows` holds the match patterns). Selecting a cell lists those bullets with the match highlighted. It's a real `<table>`, so screen readers get every value.
+- Colors were checked with a colorblind-safety validator against the dark surface: work is crimson, education is blue, and the heatmap uses a single-hue crimson ramp.
 
 ## Accessibility and performance
 

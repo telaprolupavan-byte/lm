@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 import { motion } from 'framer-motion';
 import { profile, projects, type Project } from '../data/portfolio';
 import { useScrollLock } from '../hooks/smoothScroll';
@@ -31,6 +31,8 @@ export default function ProjectModal({ project, onClose, onSwitch }: { project: 
   }, [project.id]);
 
   const more = projects.filter((p) => p.id !== project.id);
+  // Up to four steps sit on one row; longer pipelines wrap three to a row.
+  const cols = project.pipeline.length > 4 ? 3 : project.pipeline.length;
 
   return (
     <motion.div className="fixed inset-0 z-[140]" role="dialog" aria-modal="true" aria-labelledby={`title-${project.id}-modal`}>
@@ -106,6 +108,48 @@ export default function ProjectModal({ project, onClose, onSwitch }: { project: 
                 </Magnetic>
               </motion.div>
             )}
+
+            {/* brief */}
+            <motion.section variants={block} className="mt-10 rounded-xl border-l-2 bg-white/[0.03] px-5 py-4" style={{ borderColor: project.palette.accent }}>
+              <h3 className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.3em] text-crimson-2">The Brief</h3>
+              <p className="max-w-3xl text-[15px] leading-relaxed text-bone/85">{project.brief}</p>
+            </motion.section>
+
+            {/* pipeline */}
+            <motion.section variants={block} className="mt-12">
+              <h3 className="mb-5 text-[11px] font-bold uppercase tracking-[0.3em] text-crimson-2">The Pipeline</h3>
+              <ol
+                className="grid gap-3 lg:gap-2 lg:[grid-template-columns:repeat(var(--steps),minmax(0,1fr))]"
+                style={{ '--steps': cols } as CSSProperties}
+              >
+                {project.pipeline.map((step, i) => (
+                  <motion.li
+                    key={step.stage}
+                    className="relative flex gap-4 rounded-xl bg-ink p-4 ring-1 ring-white/[0.07] lg:flex-col lg:gap-0"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 + i * 0.1, duration: 0.5, ease: EASE }}
+                  >
+                    <span
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-ink"
+                      style={{ background: project.palette.accent }}
+                    >
+                      {i + 1}
+                    </span>
+                    <div className="lg:mt-3">
+                      <p className="font-display text-2xl leading-none tracking-wide text-bone">{step.stage}</p>
+                      <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-mist">{step.tools}</p>
+                      <p className="mt-2 text-[13px] leading-snug text-bone/75">{step.detail}</p>
+                    </div>
+                    {i < project.pipeline.length - 1 && i % cols !== cols - 1 && (
+                      <span aria-hidden className="absolute -right-2 top-8 z-10 hidden h-4 w-4 items-center justify-center rounded-full bg-ink-2 text-[10px] text-smoke lg:flex">
+                        →
+                      </span>
+                    )}
+                  </motion.li>
+                ))}
+              </ol>
+            </motion.section>
 
             {/* impact */}
             <motion.section variants={block} className="mt-12">
