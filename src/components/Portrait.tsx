@@ -2,7 +2,7 @@ import { useId } from 'react';
 import { profile } from '../data/portfolio';
 
 /**
- * The star of the series. Renders the responsive portrait when one is configured,
+ * The portrait slot. Renders the responsive portrait when one is configured,
  * otherwise a data-art key visual (a rising bar chart, trend line and KPI ring)
  * that drops into the same frames — so the site works before a photo is added.
  */
@@ -100,9 +100,6 @@ export function KeyArt({ className = '', label = '' }: { className?: string; lab
         </g>
         <text x="300" y="282" textAnchor="middle" fontFamily="'Bebas Neue', Impact, sans-serif" fontSize="104" fill="#f4f1ec" letterSpacing="4">
           {profile.monogram}
-        </text>
-        <text x="300" y="316" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="12" fontWeight="700" fill="#a7a6ad" letterSpacing="5">
-          {profile.role.toUpperCase()}
         </text>
 
         {/* bars */}

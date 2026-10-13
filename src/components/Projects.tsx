@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState, type FocusEvent } from 'react';
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion';
 import { profile, projects, type Project } from '../data/portfolio';
 import { useDesktop, useReducedMotionPref } from '../hooks/useMedia';
@@ -6,24 +6,24 @@ import { EASE, RevealText } from './fx';
 import ProjectCard from './ProjectCard';
 
 /**
- * ORIGINALS — on desktop the section pins and scrolls sideways like a title sequence.
+ * PROJECTS — on desktop the section pins and the case studies scroll sideways.
  * On touch / small screens / reduced motion it becomes a native swipe rail.
  */
-export default function Originals({ onOpen }: { onOpen: (p: Project) => void }) {
+export default function Projects({ onOpen }: { onOpen: (p: Project) => void }) {
   const desktop = useDesktop();
   const reduced = useReducedMotionPref();
-  return desktop && !reduced ? <PinnedOriginals onOpen={onOpen} /> : <RailOriginals onOpen={onOpen} />;
+  return desktop && !reduced ? <PinnedProjects onOpen={onOpen} /> : <RailProjects onOpen={onOpen} />;
 }
 
 function Intro() {
   return (
     <div className="flex w-full shrink-0 flex-col justify-center lg:w-[34vw]">
       <p className="mb-3 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.32em] text-crimson-2">
-        <span className="h-px w-8 bg-crimson-2" /> {projects.length} Originals · 2020 – Now
+        <span className="h-px w-8 bg-crimson-2" /> {projects.length} case studies · 2020 – Present
       </p>
-      <RevealText as="h2" text="ORIGINALS" className="font-display text-[clamp(3.5rem,9vw,8rem)] leading-[0.85] text-bone" />
+      <RevealText as="h2" text="PROJECTS" className="font-display text-[clamp(3.5rem,9vw,8rem)] leading-[0.85] text-bone" />
       <p className="mt-4 max-w-sm text-[15px] leading-relaxed text-mist">
-        Four productions from the resume — two from my roles at Meijer and Mphasis, two independent BI builds. Open any title for the full story.
+        Four case studies from the resume — two from my roles at Meijer and Mphasis, two academic & independent BI projects. Open any card for the brief, pipeline and results.
       </p>
       <p className="mt-6 hidden text-xs tracking-[0.24em] text-smoke lg:block">SCROLL TO BROWSE →</p>
     </div>
@@ -48,7 +48,7 @@ function Outro() {
   );
 }
 
-function PinnedOriginals({ onOpen }: { onOpen: (p: Project) => void }) {
+function PinnedProjects({ onOpen }: { onOpen: (p: Project) => void }) {
   const wrap = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const [dist, setDist] = useState(0);
@@ -76,12 +76,23 @@ function PinnedOriginals({ onOpen }: { onOpen: (p: Project) => void }) {
   const x = useSpring(raw, { stiffness: 120, damping: 30, mass: 0.4 });
   const bar = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
+  // Tabbing onto a card scrolls the page to the point where the track shows it (scroll range = 0.6 × dist, x = -progress × dist).
+  const syncToFocus = (e: FocusEvent<HTMLDivElement>) => {
+    const card = (e.target as HTMLElement).closest('article');
+    const w = wrap.current;
+    if (!card || !w || !dist || !track.current) return;
+    const pad = parseFloat(getComputedStyle(track.current).paddingLeft) || 0;
+    const tx = Math.min(dist, Math.max(0, card.offsetLeft - pad));
+    window.scrollTo({ top: w.getBoundingClientRect().top + window.scrollY + (tx / dist) * (w.offsetHeight - window.innerHeight) });
+  };
+
   return (
     // The row moves 1px sideways for every 0.6px scrolled, so getting through it doesn't drag.
     <div ref={wrap} style={{ height: `calc(100vh + ${Math.round(dist * 0.6)}px)` }} className="relative">
-      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
+      {/* overflow-clip, not hidden: a clipped box the browser can't scroll sideways when a card takes focus */}
+      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-clip">
         <div aria-hidden className="absolute inset-0 bg-[radial-gradient(50%_60%_at_70%_50%,rgba(229,19,43,0.10),transparent_70%)]" />
-        <motion.div ref={track} style={{ x }} className="gutter relative flex items-center gap-8 pr-[12vw]" data-cursor="drag">
+        <motion.div ref={track} style={{ x }} onFocusCapture={syncToFocus} className="gutter relative flex items-center gap-8 pr-[12vw]" data-cursor="drag">
           <Intro />
           {projects.map((p, i) => (
             <ProjectCard key={p.id} project={p} index={i} onOpen={() => onOpen(p)} />
@@ -89,7 +100,7 @@ function PinnedOriginals({ onOpen }: { onOpen: (p: Project) => void }) {
           <Outro />
         </motion.div>
         <div className="gutter absolute inset-x-0 bottom-8 flex items-center gap-4">
-          <span className="text-[10px] font-bold tracking-[0.3em] text-smoke">ORIGINALS</span>
+          <span className="text-[10px] font-bold tracking-[0.3em] text-smoke">PROJECTS</span>
           <div className="h-[2px] flex-1 overflow-hidden rounded bg-white/10">
             <motion.div className="h-full origin-left bg-crimson" style={{ scaleX: bar }} />
           </div>
@@ -99,7 +110,7 @@ function PinnedOriginals({ onOpen }: { onOpen: (p: Project) => void }) {
   );
 }
 
-function RailOriginals({ onOpen }: { onOpen: (p: Project) => void }) {
+function RailProjects({ onOpen }: { onOpen: (p: Project) => void }) {
   return (
     <div className="py-6">
       <div className="gutter mb-6">
@@ -107,8 +118,9 @@ function RailOriginals({ onOpen }: { onOpen: (p: Project) => void }) {
       </div>
       <motion.div
         className="rail gutter flex snap-x snap-mandatory gap-4 overflow-x-auto pb-6"
-        initial={{ opacity: 0, x: 60 }}
-        whileInView={{ opacity: 1, x: 0 }}
+        // Opacity only: sliding the rail in from the side widened the page until it arrived.
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.9, ease: EASE }}
       >

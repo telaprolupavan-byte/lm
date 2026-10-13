@@ -1,48 +1,39 @@
 import { useEffect, useRef, type CSSProperties } from 'react';
 import { motion } from 'framer-motion';
-import { profile, projects, type Project } from '../data/portfolio';
+import { projects, type Project } from '../data/portfolio';
+import { useDialog } from '../hooks/useDialog';
 import { useScrollLock } from '../hooks/smoothScroll';
 import { EASE, Magnetic } from './fx';
-import { ProjectArt } from './Poster';
+import { ProjectArt } from './Artwork';
 
 const block = {
   hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
   show: { opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' }, transition: { duration: 0.7, ease: EASE } },
 };
 
+const label = 'mb-4 text-[11px] font-bold uppercase tracking-[0.3em] text-crimson-2';
+
 export default function ProjectModal({ project, onClose, onSwitch }: { project: Project; onClose: () => void; onSwitch: (p: Project) => void }) {
   useScrollLock(true);
+  const root = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const closeBtn = useRef<HTMLButtonElement>(null);
+  useDialog(root, { onClose, initialFocus: closeBtn });
 
-  useEffect(() => {
-    const prevFocus = document.activeElement as HTMLElement | null;
-    closeBtn.current?.focus({ preventScroll: true });
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKey);
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      prevFocus?.focus?.({ preventScroll: true });
-    };
-  }, [onClose]);
-
+  // Switching case studies replaces the content under the pointer: start at the top, focus on ✕.
   useEffect(() => {
     scroller.current?.scrollTo({ top: 0 });
+    closeBtn.current?.focus({ preventScroll: true });
   }, [project.id]);
 
   const more = projects.filter((p) => p.id !== project.id);
-  // Up to four steps sit on one row; longer pipelines wrap three to a row.
-  const cols = project.pipeline.length > 4 ? 3 : project.pipeline.length;
+  // Up to five steps sit on one row; six make two rows of three.
+  const cols = project.pipeline.length === 6 ? 3 : project.pipeline.length;
+  const when = project.year || project.kind;
 
   return (
-    <motion.div className="fixed inset-0 z-[140]" role="dialog" aria-modal="true" aria-labelledby={`title-${project.id}-modal`}>
-      <motion.div
-        className="absolute inset-0 bg-black/80 backdrop-blur-md"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-      />
+    <motion.div ref={root} tabIndex={-1} className="fixed inset-0 z-[140] outline-none" role="dialog" aria-modal="true" aria-labelledby={`title-${project.id}-modal`}>
+      <motion.div className="absolute inset-0 bg-black/90" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
       <div ref={scroller} className="absolute inset-0 overflow-y-auto overscroll-contain" onClick={onClose}>
         <motion.div
           className="relative mx-auto min-h-full max-w-5xl bg-ink-2 shadow-2xl sm:my-10 sm:min-h-0 sm:rounded-2xl"
@@ -51,25 +42,29 @@ export default function ProjectModal({ project, onClose, onSwitch }: { project: 
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, y: 30, transition: { duration: 0.3 } }}
         >
-          {/* billboard */}
-          <div className="relative h-[52vh] min-h-[340px] overflow-hidden sm:rounded-t-2xl">
-            <motion.div layoutId={`art-${project.id}`} className="absolute inset-0" transition={{ duration: 0.7, ease: EASE }}>
-              <ProjectArt project={project} />
-            </motion.div>
-            <div className="absolute inset-0 bg-gradient-to-t from-ink-2 via-ink-2/30 to-transparent" />
+          {/* Sticky, zero-height row: ✕ stays reachable however far a long case study is scrolled (phones have no backdrop to tap). */}
+          <div className="sticky top-0 z-20 flex h-0 justify-end">
             <button
               ref={closeBtn}
               type="button"
               onClick={onClose}
               data-cursor="close"
-              aria-label="Close project"
-              className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-10 flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-lg text-bone backdrop-blur transition hover:bg-black"
+              aria-label="Close case study"
+              className="mr-4 mt-[max(1rem,env(safe-area-inset-top))] flex h-11 w-11 items-center justify-center rounded-full bg-black/70 text-lg text-bone transition hover:bg-black"
             >
               ✕
             </button>
+          </div>
+
+          {/* header art */}
+          <div className="relative h-[52vh] min-h-[340px] overflow-hidden sm:rounded-t-2xl">
+            <motion.div layoutId={`art-${project.id}`} className="absolute inset-0" transition={{ duration: 0.7, ease: EASE }}>
+              <ProjectArt project={project} />
+            </motion.div>
+            <div className="absolute inset-0 bg-gradient-to-t from-ink-2 via-ink-2/30 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 px-5 pb-6 sm:px-10">
-              <motion.p className="mb-2 flex items-center gap-2 text-[11px] font-bold tracking-[0.34em] text-bone/80" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-                <span className="font-display text-xl tracking-normal text-crimson-2">{profile.initial}</span> ORIGINAL
+              <motion.p className="mb-2 flex items-center gap-2 text-[11px] font-bold tracking-[0.3em] text-bone/80" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+                <span className="h-2 w-2 rounded-full" style={{ background: project.palette.accent }} aria-hidden /> CASE STUDY
               </motion.p>
               <motion.h2
                 id={`title-${project.id}-modal`}
@@ -84,9 +79,9 @@ export default function ProjectModal({ project, onClose, onSwitch }: { project: 
 
           <motion.div className="px-5 pb-12 sm:px-10" initial="hidden" animate="show" transition={{ staggerChildren: 0.08, delayChildren: 0.25 }}>
             <motion.div variants={block} className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-mist">
-              <span className="font-semibold text-[#46e3a8]">{project.year}</span>
+              <span className="font-semibold text-bone">{when}</span>
               <span className="h-1 w-1 rounded-full bg-smoke" />
-              <span>{project.genre}</span>
+              <span>{project.category}</span>
             </motion.div>
 
             <motion.p variants={block} className="mt-4 max-w-3xl text-lg leading-relaxed text-bone sm:text-xl">
@@ -117,11 +112,8 @@ export default function ProjectModal({ project, onClose, onSwitch }: { project: 
 
             {/* pipeline */}
             <motion.section variants={block} className="mt-12">
-              <h3 className="mb-5 text-[11px] font-bold uppercase tracking-[0.3em] text-crimson-2">The Pipeline</h3>
-              <ol
-                className="grid gap-3 lg:gap-2 lg:[grid-template-columns:repeat(var(--steps),minmax(0,1fr))]"
-                style={{ '--steps': cols } as CSSProperties}
-              >
+              <h3 className={`${label} mb-5`}>The Pipeline</h3>
+              <ol className="grid gap-3 lg:gap-2 lg:[grid-template-columns:repeat(var(--steps),minmax(0,1fr))]" style={{ '--steps': cols } as CSSProperties}>
                 {project.pipeline.map((step, i) => (
                   <motion.li
                     key={step.stage}
@@ -130,10 +122,7 @@ export default function ProjectModal({ project, onClose, onSwitch }: { project: 
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 + i * 0.1, duration: 0.5, ease: EASE }}
                   >
-                    <span
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-ink"
-                      style={{ background: project.palette.accent }}
-                    >
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-ink" style={{ background: project.palette.accent }}>
                       {i + 1}
                     </span>
                     <div className="lg:mt-3">
@@ -151,31 +140,46 @@ export default function ProjectModal({ project, onClose, onSwitch }: { project: 
               </ol>
             </motion.section>
 
-            {/* impact */}
-            <motion.section variants={block} className="mt-12">
-              <h3 className="mb-4 text-[11px] font-bold uppercase tracking-[0.3em] text-crimson-2">Result / Impact</h3>
-              {/* auto-fit: rows fill edge to edge whether a project has 2 results or 5 — no empty cells */}
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2">
-                {project.metrics.map((m, i) => (
-                  <motion.div
-                    key={m.label}
-                    className="rounded-lg bg-ink p-4 ring-1 ring-white/[0.07] sm:p-5"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.5 + i * 0.07, duration: 0.5, ease: EASE }}
-                  >
-                    <p className="font-display text-4xl leading-none text-bone sm:text-5xl" style={{ color: i === 0 ? project.palette.accent : undefined }}>
-                      {m.value}
-                    </p>
-                    <p className="mt-2 text-xs leading-snug text-mist">{m.label}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.section>
+            {/* results: numbers when the resume gives them, otherwise plain outcomes */}
+            {project.metrics.length > 0 ? (
+              <motion.section variants={block} className="mt-12">
+                <h3 className={label}>Results</h3>
+                <div className="grid grid-cols-2 gap-2 sm:[grid-template-columns:repeat(var(--m),minmax(0,1fr))]" style={{ '--m': project.metrics.length } as CSSProperties}>
+                  {project.metrics.map((m, i) => (
+                    <motion.div
+                      key={m.label}
+                      className={`rounded-lg bg-ink p-4 ring-1 ring-white/[0.07] sm:p-5 ${i === project.metrics.length - 1 && project.metrics.length % 2 ? 'col-span-2 sm:col-span-1' : ''}`}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.5 + i * 0.07, duration: 0.5, ease: EASE }}
+                    >
+                      <p className="font-display text-4xl leading-none text-bone sm:text-5xl">{m.value}</p>
+                      <p className="mt-2 text-xs leading-snug text-mist">{m.label}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.section>
+            ) : (
+              project.outcomes && (
+                <motion.section variants={block} className="mt-12">
+                  <h3 className={label}>Outcome</h3>
+                  <ul className="grid gap-2 sm:grid-cols-3">
+                    {project.outcomes.map((o) => (
+                      <li key={o} className="flex gap-3 rounded-lg bg-ink p-4 text-sm leading-relaxed text-bone/85 ring-1 ring-white/[0.07]">
+                        <span style={{ color: project.palette.accent }} aria-hidden>
+                          ✓
+                        </span>
+                        {o}
+                      </li>
+                    ))}
+                  </ul>
+                </motion.section>
+              )
+            )}
 
             <div className="mt-12 grid gap-10 lg:grid-cols-[3fr_2fr]">
               <motion.section variants={block}>
-                <h3 className="mb-4 text-[11px] font-bold uppercase tracking-[0.3em] text-crimson-2">My Contribution</h3>
+                <h3 className={label}>My Contribution</h3>
                 <ul className="space-y-4">
                   {project.build.map((b) => (
                     <li key={b} className="flex gap-3 text-[15px] leading-relaxed text-bone/85">
@@ -185,24 +189,22 @@ export default function ProjectModal({ project, onClose, onSwitch }: { project: 
                   ))}
                 </ul>
               </motion.section>
-              <div className="space-y-10">
-                <motion.section variants={block}>
-                  <h3 className="mb-4 text-[11px] font-bold uppercase tracking-[0.3em] text-crimson-2">Tech Stack</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {project.stack.map((t) => (
-                      <span key={t} className="glass rounded-full px-3 py-1.5 text-sm font-medium text-bone">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </motion.section>
-              </div>
+              <motion.section variants={block}>
+                <h3 className={label}>Tech Stack</h3>
+                <div className="flex flex-wrap gap-2">
+                  {project.stack.map((t) => (
+                    <span key={t} className="glass rounded-full px-3 py-1.5 text-sm font-medium text-bone">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </motion.section>
             </div>
 
-            {/* more like this */}
+            {/* more case studies */}
             <motion.section variants={block} className="mt-14 border-t border-white/10 pt-8">
-              <h3 className="mb-4 font-sans text-lg font-semibold text-bone">More Originals</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <h3 className="mb-4 font-sans text-lg font-semibold text-bone">More case studies</h3>
+              <div className="grid gap-4 sm:grid-cols-3">
                 {more.map((p) => (
                   <button
                     key={p.id}
@@ -215,8 +217,8 @@ export default function ProjectModal({ project, onClose, onSwitch }: { project: 
                       <ProjectArt project={p} />
                     </div>
                     <div className="absolute inset-x-0 bottom-0 p-4">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-mist">{p.genre}</p>
-                      <p className="font-display text-3xl leading-none tracking-wide text-bone">{p.title}</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-mist">{p.category}</p>
+                      <p className="font-display text-2xl leading-none tracking-wide text-bone">{p.title}</p>
                     </div>
                   </button>
                 ))}

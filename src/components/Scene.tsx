@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import { useTrackProgress } from '../hooks/sectionProgress';
 
 /**
- * A section of the series. Fades up out of black once as it arrives (a one-off animation,
- * not tied to every scroll frame), and reports viewing progress for the Continue Exploring row.
+ * A page section. Fades up out of black once as it arrives (a one-off animation,
+ * not tied to every scroll frame), and reports reading progress for the Explore row.
  */
 export default function Scene({ id, children, className = '' }: { id: string; children: ReactNode; className?: string }) {
   const ref = useRef<HTMLElement>(null);

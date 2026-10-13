@@ -1,11 +1,22 @@
 import type { ReactNode } from 'react';
-import type { Palette, Project } from '../data/portfolio';
+import { profile, type Palette, type Project } from '../data/portfolio';
 
 /**
- * Generated "key art" for thumbnails — layered gradients, light falloff and a motif.
+ * Generated card artwork — layered gradients, light falloff and a motif.
  * No stock imagery: every card is art-directed from its palette.
  */
-export function PosterBackdrop({ palette, children, className = '' }: { palette: Palette; children?: ReactNode; className?: string }) {
+export function ArtBackdrop({
+  palette,
+  children,
+  className = '',
+  scrim = 'from-black/85 via-black/10 to-transparent',
+}: {
+  palette: Palette;
+  children?: ReactNode;
+  className?: string;
+  /** Gradient stops for the bottom scrim that keeps overlaid text readable. */
+  scrim?: string;
+}) {
   return (
     <div
       className={`absolute inset-0 overflow-hidden ${className}`}
@@ -22,17 +33,26 @@ export function PosterBackdrop({ palette, children, className = '' }: { palette:
       />
       <div aria-hidden className="absolute inset-0 opacity-[0.18] [background-image:repeating-linear-gradient(0deg,rgba(255,255,255,0.06)_0px,rgba(255,255,255,0.06)_1px,transparent_1px,transparent_4px)]" />
       {children}
-      <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+      <div aria-hidden className={`absolute inset-0 bg-gradient-to-t ${scrim}`} />
     </div>
   );
 }
 
-/** Motif illustrations for each Original, built from the project's own architecture. */
-export function ProjectArt({ project, className = '' }: { project: Project; className?: string }) {
+/**
+ * Motif illustrations for each project, built from the project's own architecture.
+ * `compact` is for cards with text laid over them: the motif shrinks into the top-right corner
+ * instead of filling the frame, so it never runs behind the title.
+ */
+export function ProjectArt({ project, className = '', compact = false }: { project: Project; className?: string; compact?: boolean }) {
   const a = project.palette.accent;
   return (
-    <PosterBackdrop palette={project.palette} className={className}>
-      <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full" aria-hidden>
+    <ArtBackdrop palette={project.palette} className={className} scrim={compact ? 'from-black/90 via-black/50 via-40% to-transparent' : undefined}>
+      <svg
+        viewBox="0 0 400 300"
+        preserveAspectRatio={compact ? 'xMaxYMin meet' : 'xMidYMid slice'}
+        className={compact ? 'absolute right-0 top-0 h-[45%] w-auto' : 'absolute inset-0 h-full w-full'}
+        aria-hidden
+      >
         <defs>
           <radialGradient id={`g-${project.id}`} cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor={a} stopOpacity="0.55" />
@@ -101,18 +121,18 @@ export function ProjectArt({ project, className = '' }: { project: Project; clas
           </g>
         )}
       </svg>
-    </PosterBackdrop>
+    </ArtBackdrop>
   );
 }
 
-/** Small fictional platform mark used in the nav and on cards. */
-export function SeriesMark({ className = '' }: { className?: string }) {
+/** Name mark used in the navbar and footer: the crimson "L" plus her name. */
+export function LogoMark({ className = '' }: { className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-1.5 ${className}`}>
+    <span className={`inline-flex items-center gap-2 ${className}`}>
       <svg viewBox="0 0 24 32" className="h-[1.1em] w-auto" aria-hidden>
         <path d="M7 4v22h12" fill="none" stroke="#e5132b" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-      <span className="font-sans text-[0.62em] font-bold tracking-[0.36em] text-mist">SERIES</span>
+      <span className="font-sans text-[0.62em] font-bold tracking-[0.3em] text-bone/90">{profile.displayName.toUpperCase()}</span>
     </span>
   );
 }

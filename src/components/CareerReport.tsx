@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type FocusEvent, type PointerEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type FocusEvent, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, useInView } from 'framer-motion';
 import { careerKpis, impactByRole, timeline, toolColumns, toolRows, type Kpi } from '../data/portfolio';
@@ -25,12 +25,22 @@ function useTooltip() {
     setTip({ ...t, x: r.left + r.width / 2, y: r.top });
   };
   const hide = () => setTip(null);
+
+  // A tooltip left behind by a tap would float over the page once it scrolls.
+  useEffect(() => {
+    if (!tip) return;
+    window.addEventListener('scroll', hide, { passive: true, once: true });
+    return () => window.removeEventListener('scroll', hide);
+  }, [tip]);
+
   // Portalled to <body>: sections are transformed while they animate, which would break `position: fixed`.
+  // Clamped to the viewport sideways, and flipped below the anchor when there's no room above.
+  const below = tip ? tip.y < 96 : false;
   const node = tip && createPortal(
     <div
       role="tooltip"
-      className="pointer-events-none fixed z-[160] max-w-[260px] -translate-x-1/2 -translate-y-[calc(100%+14px)] rounded-lg border border-white/10 bg-[#16161d]/95 px-3 py-2 shadow-xl backdrop-blur"
-      style={{ left: tip.x, top: tip.y }}
+      className={`pointer-events-none fixed z-[160] max-w-[260px] -translate-x-1/2 rounded-lg border border-white/10 bg-[#16161d]/95 px-3 py-2 shadow-xl ${below ? 'translate-y-[14px]' : '-translate-y-[calc(100%+14px)]'}`}
+      style={{ left: Math.min(window.innerWidth - 140, Math.max(140, tip.x)), top: tip.y }}
     >
       <p className="text-sm font-semibold text-bone">{tip.value}</p>
       <p className="text-xs text-mist">{tip.label}</p>
@@ -43,14 +53,13 @@ function useTooltip() {
 
 export default function CareerReport() {
   const tooltip = useTooltip();
-  const updated = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 
   return (
     <>
       <SectionHeading
-        kicker="Live from the resume"
-        title="The Dashboard"
-        aside={<p className="max-w-xs text-sm text-mist">My career as a report. Hover or tap any tile, bar, milestone or cell to see the numbers and the resume lines behind them.</p>}
+        kicker="Built from the resume"
+        title="Dashboard"
+        aside={<p className="max-w-xs text-sm text-mist">My career as a report. Hover or tap a bar or milestone for its numbers, and select any cell to read the resume lines behind it.</p>}
       />
       <div className="gutter">
         <motion.div
@@ -62,24 +71,17 @@ export default function CareerReport() {
         >
           {/* report chrome */}
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-4 py-3 sm:px-6">
-            <div className="flex items-center gap-3">
-              <span className="flex gap-1.5" aria-hidden>
-                <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-                <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-                <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-              </span>
-              <p className="text-sm font-semibold text-bone">Career report</p>
-            </div>
-            <p className="text-[11px] text-smoke">Source: resume · Refreshed {updated}</p>
+            <p className="text-sm font-semibold text-bone">Career report</p>
+            <p className="text-[11px] text-smoke">Source: resume · Updated {__BUILD_MONTH__}</p>
           </div>
 
           <div className="space-y-4 p-4 sm:p-6">
-            <KpiRow tooltip={tooltip} />
+            <KpiRow />
             <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
               <Card title="Career timeline" subtitle="Roles and degrees, 2020 to today">
                 <Timeline tooltip={tooltip} />
               </Card>
-              <Card title="Impact by role" subtitle="Each measure on its own scale">
+              <Card title="Impact by role" subtitle="Each measure on its own scale · * ongoing role">
                 <ImpactBars tooltip={tooltip} />
               </Card>
             </div>
@@ -88,11 +90,6 @@ export default function CareerReport() {
             </Card>
           </div>
 
-          {/* page tabs */}
-          <div className="flex items-center gap-1 border-t border-white/10 px-4 sm:px-6" aria-hidden>
-            <span className="border-t-2 border-crimson px-3 py-2 text-[11px] font-semibold text-bone">Overview</span>
-            <span className="px-3 py-2 text-[11px] text-smoke">+</span>
-          </div>
         </motion.div>
       </div>
       {tooltip.node}
@@ -114,19 +111,11 @@ function Card({ title, subtitle, children }: { title: string; subtitle: string; 
 
 /* ---------------------------------------------- KPI tiles ---------------------------------------------- */
 
-function KpiRow({ tooltip }: { tooltip: TooltipApi }) {
+function KpiRow() {
   return (
     <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-white/[0.07] sm:grid-cols-3 xl:grid-cols-6">
       {careerKpis.map((k, i) => (
-        <div
-          key={k.label}
-          tabIndex={0}
-          className="bg-ink p-4 outline-none transition hover:bg-[#121219] focus-visible:bg-[#121219] sm:p-5"
-          onPointerMove={(e) => tooltip.fromPointer(e, { value: format(k), label: k.label, detail: k.note })}
-          onPointerLeave={tooltip.hide}
-          onFocus={(e) => tooltip.fromFocus(e, { value: format(k), label: k.label, detail: k.note })}
-          onBlur={tooltip.hide}
-        >
+        <div key={k.label} className="bg-ink p-4 transition hover:bg-[#121219] sm:p-5">
           <p className="text-xs text-mist">{k.label}</p>
           <p className="mt-2 font-sans text-[2rem] font-semibold leading-none tracking-tight text-bone sm:text-[2.4rem]">
             <CountUp kpi={k} delay={i * 0.08} />
@@ -171,7 +160,6 @@ function CountUp({ kpi, delay }: { kpi: Kpi; delay: number }) {
 /* ---------------------------------------------- Timeline ---------------------------------------------- */
 
 const AXIS_START = 2020;
-const AXIS_END = 2027;
 const toYear = (ym: string | null) => {
   if (!ym) {
     const d = new Date();
@@ -180,6 +168,8 @@ const toYear = (ym: string | null) => {
   const [y, m] = ym.split('-').map(Number);
   return y + (m - 1) / 12;
 };
+// The axis always runs a little past today, so the ongoing role never hits the edge.
+const AXIS_END = Math.max(2027, Math.ceil(toYear(null) + 0.25));
 const pct = (y: number) => ((y - AXIS_START) / (AXIS_END - AXIS_START)) * 100;
 
 function Timeline({ tooltip }: { tooltip: TooltipApi }) {
@@ -244,7 +234,7 @@ function Timeline({ tooltip }: { tooltip: TooltipApi }) {
                   {t.kind === 'Work' ? (
                     <motion.span
                       {...handlers}
-                      className={`absolute top-1/2 h-5 -translate-y-1/2 cursor-default rounded-[4px] outline-none ring-offset-2 ring-offset-[#07070a] transition-opacity focus-visible:ring-2 focus-visible:ring-bone ${dim}`}
+                      className={`absolute top-1/2 h-5 -translate-y-1/2 rounded-[4px] outline-none ring-offset-2 ring-offset-[#07070a] transition-opacity focus-visible:ring-2 focus-visible:ring-bone ${dim}`}
                       style={{
                         left: `${pct(s)}%`,
                         width: `${Math.max(1.5, pct(e) - pct(s))}%`,
@@ -299,28 +289,36 @@ function ImpactBars({ tooltip }: { tooltip: TooltipApi }) {
           <div key={m.measure}>
             <p className="mb-2 text-xs font-medium text-mist">{m.measure}</p>
             <div className="space-y-1.5">
-              {m.rows.map((r, ri) => (
+              {m.rows.map((r, ri) => {
+                const ongoing = r.role.endsWith('*');
+                const role = r.role.replace(/\*$/, '');
+                const label = `${m.measure} · ${role}${ongoing ? ' (ongoing)' : ''}`;
+                return (
                 <div key={r.role} className="flex items-center gap-3">
-                  <span className="w-16 shrink-0 text-[11px] text-smoke">{r.role}</span>
+                  <span className="w-16 shrink-0 text-[11px] text-smoke">
+                    {role}
+                    {ongoing && <span aria-hidden>*</span>}
+                  </span>
                   <div className="relative flex h-5 flex-1 items-center">
                     <motion.span
                       tabIndex={0}
-                      aria-label={`${m.measure}, ${r.role}: ${r.value}`}
-                      className="block h-4 cursor-default rounded-r-[4px] outline-none transition hover:brightness-125 focus-visible:ring-2 focus-visible:ring-bone"
+                      aria-label={`${label}: ${r.value}`}
+                      className="block h-4 rounded-r-[4px] outline-none transition hover:brightness-125 focus-visible:ring-2 focus-visible:ring-bone"
                       style={{ background: WORK, width: `${(r.value / max) * 82}%`, transformOrigin: 'left center' }}
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.8, delay: 0.15 + mi * 0.12 + ri * 0.06, ease: EASE }}
-                      onPointerMove={(e) => tooltip.fromPointer(e, { value: String(r.value), label: `${m.measure} · ${r.role}` })}
+                      onPointerMove={(e) => tooltip.fromPointer(e, { value: String(r.value), label })}
                       onPointerLeave={tooltip.hide}
-                      onFocus={(e) => tooltip.fromFocus(e, { value: String(r.value), label: `${m.measure} · ${r.role}` })}
+                      onFocus={(e) => tooltip.fromFocus(e, { value: String(r.value), label })}
                       onBlur={tooltip.hide}
                     />
                     <span className="ml-2 text-xs font-semibold tabular-nums text-bone">{r.value}</span>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         );
@@ -339,14 +337,42 @@ function ToolHeatmap() {
     [],
   );
   const [sel, setSel] = useState<{ r: number; c: number }>({ r: 0, c: 0 });
+  const table = useRef<HTMLTableElement>(null);
+  const evidence = useRef<HTMLDivElement>(null);
   const hits = matrix[sel.r][sel.c];
+  const cols = toolColumns.length;
+
+  // The grid is one Tab stop: arrow keys move the selection, Home/End jump within the row.
+  const onKeyDown = (e: KeyboardEvent<HTMLTableElement>) => {
+    const moves: Record<string, [number, number]> = {
+      ArrowUp: [sel.r - 1, sel.c],
+      ArrowDown: [sel.r + 1, sel.c],
+      ArrowLeft: [sel.r, sel.c - 1],
+      ArrowRight: [sel.r, sel.c + 1],
+      Home: [sel.r, 0],
+      End: [sel.r, cols - 1],
+    };
+    const to = moves[e.key];
+    if (!to) return;
+    e.preventDefault();
+    const r = Math.min(toolRows.length - 1, Math.max(0, to[0]));
+    const c = Math.min(cols - 1, Math.max(0, to[1]));
+    setSel({ r, c });
+    table.current?.querySelectorAll<HTMLButtonElement>('tbody button')[r * cols + c]?.focus();
+  };
+
+  // Below xl the Evidence panel sits under the table, out of view: bring it up after a tap.
+  const pick = (r: number, c: number) => {
+    setSel({ r, c });
+    if (window.innerWidth < 1280) requestAnimationFrame(() => evidence.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
+  };
   const row = toolRows[sel.r];
   const col = toolColumns[sel.c];
 
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <div className="rail -mx-1 overflow-x-auto px-1">
-        <table className="w-full border-separate [border-spacing:2px] text-left">
+        <table ref={table} onKeyDown={onKeyDown} className="w-full border-separate [border-spacing:2px] text-left">
           <caption className="sr-only">Number of resume bullets that mention each tool, by role and project. Select a cell to read them.</caption>
           <thead>
             <tr>
@@ -374,12 +400,12 @@ function ToolHeatmap() {
                     <td key={c.id} className="p-0">
                       <button
                         type="button"
-                        onClick={() => setSel({ r: ri, c: ci })}
-                        onPointerEnter={(e) => e.pointerType === 'mouse' && setSel({ r: ri, c: ci })}
+                        onClick={() => pick(ri, ci)}
                         onFocus={() => setSel({ r: ri, c: ci })}
+                        tabIndex={active ? 0 : -1}
                         aria-pressed={active}
                         aria-label={`${r.name} at ${c.label}: ${n} ${n === 1 ? 'bullet' : 'bullets'}`}
-                        className={`flex h-8 w-full min-w-9 items-center justify-center rounded-[4px] text-xs font-semibold tabular-nums transition ${
+                        className={`flex h-8 w-full min-w-9 items-center justify-center rounded-[4px] text-xs font-semibold tabular-nums transition hover:ring-1 hover:ring-inset hover:ring-bone/50 ${
                           n ? '' : 'text-smoke/60 ring-1 ring-inset ring-white/[0.06]'
                         } ${active ? 'outline outline-2 outline-offset-1 outline-bone' : ''}`}
                         style={{ background: bg, color: n ? ink : undefined }}
@@ -404,7 +430,7 @@ function ToolHeatmap() {
         </div>
       </div>
 
-      <div aria-live="polite" className="rounded-lg bg-ink-2 p-4 ring-1 ring-white/[0.07]">
+      <div ref={evidence} aria-live="polite" className="scroll-mt-24 self-start rounded-lg bg-ink-2 p-4 ring-1 ring-white/[0.07] xl:sticky xl:top-24">
         <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-crimson-2">Evidence</p>
         <p className="mt-1 text-sm font-semibold text-bone">
           {row.name} · {col.label}
@@ -424,7 +450,7 @@ function ToolHeatmap() {
             ))}
           </ul>
         ) : (
-          <p className="text-xs text-smoke">Not mentioned in this role’s bullets. Pick a filled cell to read the work.</p>
+          <p className="text-xs text-smoke">Not mentioned in these resume lines. Pick a filled cell to read the work.</p>
         )}
       </div>
     </div>

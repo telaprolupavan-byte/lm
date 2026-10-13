@@ -28,25 +28,45 @@ export default function CustomCursor() {
     const move = (e: PointerEvent) => {
       x.set(e.clientX);
       y.set(e.clientY);
-      setVisible(true);
       const t = e.target as HTMLElement | null;
+      // Pointer events stop at an iframe's edge (the resume PDF), where the native cursor takes over.
+      if (t?.tagName === 'IFRAME') {
+        setVisible(false);
+        return;
+      }
+      setVisible(true);
       const tagged = t?.closest<HTMLElement>('[data-cursor]');
       setMode(tagged?.dataset.cursor ?? null);
       setHoverLink(!tagged && !!t?.closest('a,button,[role="button"]'));
     };
     const leave = () => setVisible(false);
+    const out = (e: PointerEvent) => {
+      const to = e.relatedTarget as Element | null;
+      if (!to || to.tagName === 'IFRAME') setVisible(false);
+    };
     const press = () => setDown(true);
     const release = () => setDown(false);
+    // A click often swaps what's under the pointer (an overlay opens or closes), so drop the label until the next move.
+    const clear = () => {
+      setMode(null);
+      setHoverLink(false);
+    };
     window.addEventListener('pointermove', move, { passive: true });
     document.addEventListener('pointerleave', leave);
+    document.addEventListener('pointerout', out);
+    window.addEventListener('blur', leave);
     window.addEventListener('pointerdown', press);
     window.addEventListener('pointerup', release);
+    window.addEventListener('click', clear, true);
     return () => {
       document.documentElement.classList.remove('has-custom-cursor');
       window.removeEventListener('pointermove', move);
       document.removeEventListener('pointerleave', leave);
+      document.removeEventListener('pointerout', out);
+      window.removeEventListener('blur', leave);
       window.removeEventListener('pointerdown', press);
       window.removeEventListener('pointerup', release);
+      window.removeEventListener('click', clear, true);
     };
   }, [enabled, x, y]);
 

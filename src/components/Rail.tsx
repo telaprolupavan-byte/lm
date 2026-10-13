@@ -27,7 +27,7 @@ export function RailButtons({ rail }: { rail: RefObject<HTMLDivElement | null> }
   };
 
   const base =
-    'absolute top-8 bottom-8 z-20 hidden w-[var(--gutter)] min-w-10 items-center justify-center bg-gradient-to-r text-3xl text-bone opacity-0 transition duration-300 group-hover/rail:opacity-100 hover:text-white [@media(hover:hover)]:flex';
+    'absolute top-8 bottom-8 z-20 hidden w-[var(--gutter)] min-w-10 items-center justify-center bg-gradient-to-r text-3xl text-bone opacity-0 transition duration-300 group-hover/rail:opacity-100 focus-visible:opacity-100 hover:text-white [@media(hover:hover)]:flex';
 
   return (
     <>

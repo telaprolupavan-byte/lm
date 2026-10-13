@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { achievements, certifications, education, experience, profile, projects, skillCategories } from '../data/portfolio';
+import { certifications, education, experience, profile, projects, skillCategories } from '../data/portfolio';
 import { EASE, Magnetic, SectionHeading } from './fx';
 
-/** THE FULL STORY — a designed resume preview plus view / download actions. */
+/** RESUME — a designed resume preview plus view / download actions. The side column only appears where the sheet keeps its full width. */
 export default function ResumeSection({ onView }: { onView: () => void }) {
   return (
     <>
-      <SectionHeading kicker="The screenplay" title="The Full Story" />
-      <div className="gutter grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-14">
+      <SectionHeading kicker="One page" title="Resume" />
+      <div className="gutter grid gap-10 xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-14">
         <motion.div
           initial={{ opacity: 0, y: 60, rotateX: 10 }}
           whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
@@ -19,8 +19,8 @@ export default function ResumeSection({ onView }: { onView: () => void }) {
           <CollapsibleSheet />
         </motion.div>
 
-        <div className="lg:sticky lg:top-28 lg:self-start">
-          <p className="font-serif text-3xl italic leading-tight text-bone">Every episode, on one page.</p>
+        <div className="xl:sticky xl:top-28 xl:self-start">
+          <p className="font-serif text-3xl italic leading-tight text-bone">Everything, on one page.</p>
           <p className="mt-3 text-sm leading-relaxed text-mist">
             Experience, education, projects, impact and skills — {profile.resumePdf ? 'view it here or take a copy with you.' : 'the whole resume, right here.'}
           </p>
@@ -32,7 +32,7 @@ export default function ResumeSection({ onView }: { onView: () => void }) {
                 onClick={onView}
                 className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-bone px-6 text-[15px] font-bold text-ink transition hover:bg-white"
               >
-                ▶ View Resume
+                View Resume
               </button>
             </Magnetic>
             {profile.resumePdf && (
@@ -48,18 +48,6 @@ export default function ResumeSection({ onView }: { onView: () => void }) {
               </Magnetic>
             )}
           </div>
-          <dl className="mt-8 grid grid-cols-3 gap-px overflow-hidden rounded-xl bg-white/10 text-center">
-            {[
-              { v: '4+', k: 'Years' },
-              { v: '14', k: 'Dashboards' },
-              { v: String(projects.length), k: 'Originals' },
-            ].map((s) => (
-              <div key={s.k} className="bg-ink-2 px-2 py-4">
-                <dd className="font-display text-3xl leading-none text-bone">{s.v}</dd>
-                <dt className="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-smoke">{s.k}</dt>
-              </div>
-            ))}
-          </dl>
         </div>
       </div>
     </>
@@ -77,7 +65,7 @@ function CollapsibleSheet() {
       {!open && (
         <div className="absolute inset-x-0 bottom-0 flex h-48 items-end justify-center rounded-b-2xl bg-gradient-to-t from-ink via-ink/85 to-transparent pb-4 md:hidden">
           <button type="button" onClick={() => setOpen(true)} className="glass min-h-11 rounded-full px-5 text-sm font-semibold text-bone">
-            Read the full story ↓
+            Read the full resume ↓
           </button>
         </div>
       )}
@@ -112,8 +100,7 @@ export function ResumeSheet() {
       <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-crimson-2/70 to-transparent" />
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-6">
         <div>
-          <p className="text-[10px] font-bold tracking-[0.34em] text-smoke">STARRING</p>
-          <h3 className="mt-1 font-display text-[clamp(1.9rem,4.4vw,3.2rem)] leading-[0.9] tracking-wide text-bone">{profile.fullName}</h3>
+          <h3 className="font-display text-[clamp(1.9rem,4.4vw,3.2rem)] leading-[0.9] tracking-wide text-bone">{profile.fullName}</h3>
           <p className="mt-1 text-xs font-semibold uppercase tracking-[0.3em] text-mist">{profile.role}</p>
         </div>
         <div className="text-xs leading-relaxed text-mist sm:text-right">
@@ -147,18 +134,6 @@ export function ResumeSheet() {
             </div>
           ))}
 
-          <H>Academic & Independent Projects</H>
-          {independent.map((p) => (
-            <div key={p.id} className="mb-4">
-              <p className="text-sm font-semibold text-bone">{p.title}</p>
-              <p className="mb-1.5 text-xs text-smoke">{p.stack.join(', ')}</p>
-              <ul className="space-y-1.5">
-                {p.build.map((b) => (
-                  <Bullet key={b}>{b}</Bullet>
-                ))}
-              </ul>
-            </div>
-          ))}
         </div>
 
         <div>
@@ -183,17 +158,18 @@ export function ResumeSheet() {
             ))}
           </div>
 
-          <H>Impact Highlights</H>
-          <ul className="space-y-2">
-            {achievements.map((a) => (
-              <li key={a.id} className="text-xs leading-relaxed text-mist">
-                <span className="font-semibold text-bone">
-                  {a.title} — {a.org}.
-                </span>{' '}
-                {a.detail}
-              </li>
-            ))}
-          </ul>
+          <H>Academic & Independent Projects</H>
+          {independent.map((p) => (
+            <div key={p.id} className="mb-4">
+              <p className="text-sm font-semibold text-bone">{p.title}</p>
+              <p className="mb-1.5 text-xs text-smoke">{p.stack.join(', ')}</p>
+              <ul className="space-y-1.5">
+                {p.build.map((b) => (
+                  <Bullet key={b}>{b}</Bullet>
+                ))}
+              </ul>
+            </div>
+          ))}
 
           {certifications.length > 0 && (
             <>

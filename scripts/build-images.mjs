@@ -5,8 +5,19 @@
 //   pic1.jpeg = high-resolution source, pic.png = background-removed cutout (same framing).
 //   The cutout's alpha mask is upscaled and applied to the high-res photo so the face stays sharp,
 //   then exported as responsive WebP portraits (portrait-420/720/1100.webp).
-import sharp from 'sharp';
-import { existsSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+
+// librsvg finds fonts through fontconfig, so point it at the bundled Bebas Neue (scripts/fonts, OFL licence)
+// before sharp loads — the share image then uses the site's display face instead of a system fallback.
+const fontConf = join(tmpdir(), 'portfolio-fonts.conf');
+writeFileSync(
+  fontConf,
+  `<?xml version="1.0"?><!DOCTYPE fontconfig SYSTEM "fonts.dtd"><fontconfig><dir>${resolve('scripts/fonts')}</dir><include ignore_missing="yes">/etc/fonts/fonts.conf</include></fontconfig>`,
+);
+process.env.FONTCONFIG_FILE = fontConf;
+const { default: sharp } = await import('sharp');
 
 const OUT = 'public/assets';
 mkdirSync(OUT, { recursive: true });
@@ -65,9 +76,10 @@ const layers = [
 if (cutout) layers.push({ input: await sharp(cutout).resize({ height: 600 }).png().toBuffer(), gravity: 'southeast' });
 layers.push({
   input: Buffer.from(`<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-    <text x="72" y="300" font-family="Impact, 'Arial Narrow', sans-serif" font-size="128" fill="#f4f1ec" letter-spacing="4">LIKITHA</text>
-    <text x="78" y="352" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="26" fill="#ff3d5a" letter-spacing="16">THE SERIES</text>
-    <text x="78" y="420" font-family="Helvetica, Arial, sans-serif" font-weight="600" font-size="18" fill="#a7a6ad" letter-spacing="5">DATA ANALYST • SQL • PYTHON • POWER BI</text>
+    <text x="70" y="250" font-family="'Bebas Neue', Impact, sans-serif" font-size="150" fill="#f4f1ec" letter-spacing="4">LIKITHA</text>
+    <text x="72" y="372" font-family="'Bebas Neue', Impact, sans-serif" font-size="150" fill="#f4f1ec" letter-spacing="4">MAGHAM</text>
+    <text x="76" y="430" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="24" fill="#ff3d5a" letter-spacing="8">DATA ANALYST · MEIJER</text>
+    <text x="76" y="480" font-family="Helvetica, Arial, sans-serif" font-weight="600" font-size="18" fill="#a7a6ad" letter-spacing="4">SQL • PYTHON • POWER BI • SNOWFLAKE</text>
   </svg>`),
 });
 

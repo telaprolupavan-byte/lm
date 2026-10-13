@@ -1,9 +1,6 @@
-# LIKITHA — THE SERIES
+# Likitha Magham — Data Analyst Portfolio
 
-A cinematic, streaming-inspired portfolio for **Likitha Magham**, Data Analyst.
-Every section is an episode, every project is an Original, and the whole site plays like a series.
-
-> A personal portfolio with a fictional streaming-platform look. It is not affiliated with Netflix or any other streaming service and uses none of their logos.
+Portfolio site for **Likitha Magham**, Data Analyst: experience, an interactive career dashboard, project case studies, skills, measured impact and a resume, in a dark, cinematic look.
 
 ## Run it locally
 
@@ -34,16 +31,17 @@ The static site is written to `dist/` and can be deployed as-is to Vercel, Netli
 | Name, intro, location, core toolkit | `profile` |
 | Email, phone, LinkedIn, GitHub | `profile.email`, `profile.phone`, `profile.links` (empty values are hidden) |
 | Work history | `experience` |
-| A project, or a new one | `projects` (add an object; it appears in Originals, the overlay and the counts). `brief` and `pipeline` drive the case-study overlay |
+| A project, or a new one | `projects` (add an object; it appears in Projects, the case-study overlay and the counts). `brief`, `pipeline` and `metrics` (or `outcomes` when there are no numbers) drive the case study |
 | The Dashboard (career report) | `careerKpis`, `impactByRole`, `timeline`, `toolRows`, `toolColumns` |
-| Impact highlight cards | `achievements` |
+| Experience tabs and highlight cards | `chapters` |
+| Impact cards | `achievements` |
 | Certifications | `certifications` (empty today; add entries and the "Certified" row appears) |
 | Skills and their "where it's used" notes | `skillCategories`, `skillEvidence` |
-| Seasons and episodes (My Journey) | `seasons` |
-| Top 10 row | `topPicks` |
-| ▶ Play Intro highlight reel | `introSlides` |
-| Profile order (Recruiter / Data Team / Creative) | `viewerProfiles` |
-| Opening studio card text | `profile.originalLabel` |
+| ▶ Quick Tour slides | `introSlides` |
+| Section order per view (Full portfolio / Recruiter / Data team) | `views` |
+| Intro query result rows | `ROWS` in `src/components/IntroSequence.tsx` |
+
+**Share previews:** set `VITE_SITE_URL` (see `.env.example`) to the deployed address so link previews get absolute URLs.
 
 ### Still to fill in
 
@@ -77,28 +75,27 @@ Without photos, `npm run images` still rebuilds the share image (`og-image.jpg`)
 ```
 src/
   data/portfolio.ts        ← single source of truth (from the resume)
-  App.tsx                  ← stages: opening → profile select → home; overlays
+  App.tsx                  ← intro → portfolio; overlays with browser history (Back closes them)
   components/
-    OpeningSequence        ← black → studio card → LIKITHA → THE SERIES → portrait → ▶ PLAY
-    ProfileSelector        ← "Who's watching?" (changes section order only)
-    Navbar                 ← hide-on-scroll nav, profile switcher, mobile menu
-    Hero                   ← billboard: parallax portrait, particles, light streaks, floating chips
-    Portrait               ← the photo, or the data-art key visual until one is added
-    PlayIntro              ← ▶ Play Intro: zoom into portrait → highlight reel (pause, ← →, tap zones)
-    ContinueWatching       ← cards with real "watched" progress bars
-    About                  ← The Pilot
-    CareerReport           ← The Dashboard: KPI tiles, career timeline, impact bars, tools × roles heatmap with evidence
-    Seasons / EpisodeCard  ← My Journey as seasons and episodes
-    Originals / ProjectCard← pinned horizontal sequence on desktop, swipe rail on touch
-    ProjectModal           ← case-study overlay: brief, pipeline, impact, contribution (shared-element transition)
-    TopPicks               ← Top 10-style row
-    Skills                 ← skill genres; each card shows where the skill appears
-    Achievements           ← impact "award" cards (+ certification rail when there are any)
+    IntroSequence          ← SQL query types out → result rows → name reveal (skippable, ~5s)
+    Navbar                 ← hide-on-scroll nav, view switcher, mobile menu
+    Hero                   ← name, role, key art, Quick Tour / View Resume, email
+    QuickNav               ← "Explore" cards with real reading-progress bars
+    About                  ← summary + key facts
+    CareerReport           ← Dashboard: KPI tiles, career timeline, impact bars, tools × roles heatmap with evidence
+    Experience / HighlightCard ← roles, education and projects as tabs with highlight cards
+    Projects / ProjectCard ← pinned horizontal row on desktop, swipe rail on touch
+    ProjectModal           ← case study: brief, pipeline, results/outcome, contribution, stack
+    Skills                 ← every category visible; tap a marked skill to see where it was used
+    Achievements           ← Impact: measured results
     ResumeViewer/ResumeModal ← designed resume sheet, PDF viewer, download
-    FinalCTA               ← TO BE CONTINUED… + contact links
-    CustomCursor, fx.tsx   ← cursor states, magnetic buttons, 3D tilt, text reveals, particles
-  hooks/                   ← section jumps + scroll lock, media queries, watch progress
-scripts/build-images.mjs   ← portrait/share-image pipeline (sharp)
+    FinalCTA               ← contact: email, resume download, copyable address
+    QuickTour              ← six-slide summary (pause, ← →, tap zones)
+    Portrait               ← photo slot; the data-art key visual until a photo is added
+    Artwork                ← generated card art and the logo mark
+    CustomCursor, fx.tsx   ← cursor states, magnetic buttons, tilt, text reveals, particles
+  hooks/                   ← dialog focus, section jumps + scroll lock, media queries, reading progress
+scripts/build-images.mjs   ← portrait + share-image pipeline (sharp; Bebas Neue bundled under scripts/fonts, OFL)
 ```
 
 **Stack:** React 18, TypeScript, Vite 6, Tailwind CSS 4, Framer Motion 11.
@@ -115,19 +112,20 @@ The career report is computed from the data file, so it stays in sync with the r
 
 **Scrolling is native.** No smooth-scroll library, so the page follows the wheel, trackpad and touch exactly. To keep it fast, effects follow a few rules. Please keep them when editing:
 
-- Nothing animates `filter: blur()` or `backdrop-filter` while the page scrolls; blur is only used in overlays and the opening.
+- Nothing animates `filter: blur()` or `backdrop-filter` while the page scrolls; blur is only used in overlays and the intro.
 - Sections fade in once as they arrive, instead of recomputing on every scroll frame.
 - Looping motion (floating chips, grain) is pure CSS `transform`/`opacity`, which the GPU handles without repainting.
 - The data-art key visual carries its own fade and no CSS filter, so it's never re-rendered while scrolling.
 
-- `prefers-reduced-motion` is respected: smooth section jumps, the custom cursor, tilt, particles, grain, the key-visual animation and the pinned horizontal scroll turn off, and the opening jumps straight to its final frame.
+- `prefers-reduced-motion` is respected: smooth section jumps, the custom cursor, tilt, particles, grain, the key-visual animation and the pinned horizontal scroll turn off, and the intro shows its final frame.
 - Hover effects only run on devices with a precise pointer. Touch devices get tap interactions and native swipe rails.
 - The custom cursor appears only with a mouse or trackpad.
-- Overlays close with Esc, and the highlight reel supports Space and the ← → keys.
+- Overlays trap focus while open, close with Esc or the browser's Back, and return focus to where it was. The Quick Tour supports Space and the ← → keys.
 - Overlays are code-split, and particles pause when they're off screen.
 
 ## Keyboard shortcuts
 
-- **Opening:** Enter or Esc skips it.
-- **Play Intro:** Space pauses, ← and → change slides, Esc closes.
-- **Project and resume overlays:** Esc closes.
+- **Intro:** Enter or Esc skips it.
+- **Quick Tour:** Space pauses, ← and → change slides, Esc closes.
+- **Case study and resume overlays:** Esc closes.
+- **Dashboard heatmap:** arrow keys move between cells.

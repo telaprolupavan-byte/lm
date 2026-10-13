@@ -1,8 +1,8 @@
 import { useEffect, useSyncExternalStore, type RefObject } from 'react';
 
 /**
- * Tracks how much of each section the visitor has actually watched (0–1),
- * so the "Continue Exploring" progress bars reflect real viewing, not fake numbers.
+ * Tracks how much of each section the visitor has actually scrolled through (0–1),
+ * so the Explore row's bars reflect real reading, not fake numbers.
  */
 const progress: Record<string, number> = {};
 const listeners = new Set<() => void>();
@@ -16,7 +16,7 @@ function set(id: string, raw: number) {
   listeners.forEach((l) => l());
 }
 
-export function useWatchProgress() {
+export function useReadProgress() {
   return useSyncExternalStore(
     (cb) => {
       listeners.add(cb);

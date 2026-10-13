@@ -3,13 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Likitha — The Series</title>
-    <meta name="description" content="Likitha Magham — Data Analyst with 4+ years in analytics, business intelligence and reporting automation. A cinematic, streaming-inspired portfolio." />
+    <title>Likitha Magham — Data Analyst | SQL, Python, Power BI</title>
+    <meta name="description" content="Likitha Magham — Data Analyst with 4+ years in analytics, business intelligence and reporting automation. SQL, Python, Power BI, Excel and Snowflake." />
     <meta name="theme-color" content="#07070a" />
-    <meta property="og:title" content="Likitha — The Series" />
-    <meta property="og:description" content="Data Analyst • SQL • Python • Power BI. Every dashboard is an Original." />
-    <meta property="og:image" content="/assets/og-image.jpg" />
+    <!-- Absolute URLs for share previews: VITE_SITE_URL in .env is the deployed origin (see .env.example). -->
+    <link rel="canonical" href="%VITE_SITE_URL%/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Likitha Magham" />
+    <meta property="og:url" content="%VITE_SITE_URL%/" />
+    <meta property="og:title" content="Likitha Magham — Data Analyst" />
+    <meta property="og:description" content="Data Analyst at Meijer with 4+ years in data analytics, business intelligence and reporting automation across retail and IT services. SQL, Python, Power BI, Excel." />
+    <meta property="og:image" content="%VITE_SITE_URL%/assets/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Likitha Magham — Data Analyst: SQL, Python, Power BI" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Likitha Magham — Data Analyst" />
+    <meta name="twitter:description" content="Data Analyst at Meijer with 4+ years in data analytics, business intelligence and reporting automation across retail and IT services. SQL, Python, Power BI, Excel." />
+    <meta name="twitter:image" content="%VITE_SITE_URL%/assets/og-image.jpg" />
+    <meta name="twitter:image:alt" content="Likitha Magham — Data Analyst: SQL, Python, Power BI" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,6 +32,9 @@
         "@type": "Person",
         "name": "Likitha Magham",
         "jobTitle": "Data Analyst",
+        "description": "Data Analyst with 4+ years of experience in data analytics, business intelligence and reporting automation across retail and IT services operations.",
+        "url": "%VITE_SITE_URL%/",
+        "image": "%VITE_SITE_URL%/assets/og-image.jpg",
         "email": "mailto:Likitham4968@gmail.com",
         "worksFor": { "@type": "Organization", "name": "Meijer" },
         "address": { "@type": "PostalAddress", "addressLocality": "Grand Rapids", "addressRegion": "MI", "addressCountry": "US" },
@@ -32,8 +47,34 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
-    <noscript>Likitha Magham — Data Analyst. Please enable JavaScript to watch the series.</noscript>
+    <div id="root">
+      <!-- Shown to visitors and crawlers without JavaScript. With JavaScript, React replaces it on mount. -->
+      <noscript>
+        <main style="max-width: 40rem; margin: 0 auto; padding: 4rem 1.25rem; line-height: 1.6">
+          <h1 style="margin: 0 0 1rem; font-size: 2rem; font-weight: 700; line-height: 1.2">Likitha Magham — Data Analyst</h1>
+          <p>
+            Data Analyst with 4+ years of experience in data analytics, business intelligence and reporting automation across retail and IT services operations. SQL, Python, Power BI, Excel and Snowflake, with hands-on experience in ETL, data
+            validation and dashboard reporting for finance, operations and business stakeholders.
+          </p>
+          <h2 style="margin: 2rem 0 0.5rem; font-size: 1.125rem; font-weight: 600">Experience</h2>
+          <ul style="margin: 0; padding-left: 1.25rem; list-style: disc">
+            <li>Data Analyst, Meijer — Grand Rapids, MI · Apr 2025 – Present</li>
+            <li>Data &amp; Business Analyst, Mphasis — Bangalore, India · May 2020 – Dec 2023</li>
+          </ul>
+          <h2 style="margin: 2rem 0 0.5rem; font-size: 1.125rem; font-weight: 600">Education</h2>
+          <ul style="margin: 0; padding-left: 1.25rem; list-style: disc">
+            <li>Master of Science in Computer Science, Grand Valley State University — Allendale, MI · August 2025</li>
+            <li>Bachelor of Science in Computer Science, Sathyabama University — Chennai, India · 2021</li>
+          </ul>
+          <h2 style="margin: 2rem 0 0.5rem; font-size: 1.125rem; font-weight: 600">Contact</h2>
+          <p>
+            <a href="mailto:Likitham4968@gmail.com" style="color: inherit; text-decoration: underline">Likitham4968@gmail.com</a> ·
+            <a href="/assets/Likitha_Magham_Resume.pdf" style="color: inherit; text-decoration: underline">Resume (PDF)</a>
+          </p>
+          <p style="margin-top: 2rem; opacity: 0.7">Turn on JavaScript for the interactive portfolio, including the career dashboard and case studies.</p>
+        </main>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useMotionValue } from 'framer-motion';
 import { introSlides, profile } from '../data/portfolio';
+import { useDialog } from '../hooks/useDialog';
 import { useScrollLock } from '../hooks/smoothScroll';
 import { useReducedMotionPref } from '../hooks/useMedia';
 import { EASE } from './fx';
@@ -9,20 +10,23 @@ import { Portrait } from './Portrait';
 const SLIDE_MS = 3600;
 
 /**
- * "▶ Play Intro": darken → zoom into the portrait → a full-screen highlight reel
+ * "▶ Quick Tour": zoom into the key art → six full-screen summary slides
  * built only from resume facts → fade back to the portfolio.
  */
-export default function PlayIntro({ onClose }: { onClose: () => void }) {
+export default function QuickTour({ onClose }: { onClose: () => void }) {
   useScrollLock(true);
   const reduced = useReducedMotionPref();
-  const [phase, setPhase] = useState<'zoom' | 'reel' | 'end'>(reduced ? 'reel' : 'zoom');
+  const root = useRef<HTMLDivElement>(null);
+  const pause = useRef<HTMLButtonElement>(null);
+  useDialog(root, { onClose, initialFocus: pause });
+  const [phase, setPhase] = useState<'zoom' | 'slides' | 'end'>(reduced ? 'slides' : 'zoom');
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const progress = useMotionValue(0);
 
   useEffect(() => {
     if (phase !== 'zoom') return;
-    const t = window.setTimeout(() => setPhase('reel'), 1700);
+    const t = window.setTimeout(() => setPhase('slides'), 1700);
     return () => clearTimeout(t);
   }, [phase]);
 
@@ -43,7 +47,7 @@ export default function PlayIntro({ onClose }: { onClose: () => void }) {
 
   // one clock drives both the active progress bar and auto-advance, so pause is exact
   useEffect(() => {
-    if (phase !== 'reel' || paused) return;
+    if (phase !== 'slides' || paused) return;
     let raf = 0;
     let last = performance.now();
     const tick = (now: number) => {
@@ -66,34 +70,36 @@ export default function PlayIntro({ onClose }: { onClose: () => void }) {
     return () => clearTimeout(t);
   }, [phase, onClose]);
 
+  // Esc is handled by useDialog. Space toggles pause, except on a focused button, where it already clicks.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
       if (e.key === 'ArrowRight') next();
       if (e.key === 'ArrowLeft') prev();
-      if (e.key === ' ') {
+      if (e.key === ' ' && !(e.target as Element).closest('button')) {
         e.preventDefault();
         setPaused((p) => !p);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose, next, prev]);
+  }, [next, prev]);
 
   const slide = introSlides[index];
 
   return (
     <motion.div
-      className="fixed inset-0 z-[130] overflow-hidden bg-black"
+      ref={root}
+      tabIndex={-1}
+      className="fixed inset-0 z-[130] overflow-hidden bg-black outline-none"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, filter: 'blur(10px)' }}
       transition={{ duration: 0.6 }}
       role="dialog"
       aria-modal="true"
-      aria-label="Intro highlight reel"
+      aria-label="Quick tour"
     >
-      {/* Zoom into the portrait */}
+      {/* Zoom into the key art */}
       <motion.div
         className="absolute inset-0 flex items-end justify-center"
         initial={{ scale: 1, opacity: 1 }}
@@ -116,17 +122,17 @@ export default function PlayIntro({ onClose }: { onClose: () => void }) {
             <div key={s.kicker} className="h-[3px] flex-1 overflow-hidden rounded bg-white/15">
               <motion.div
                 className="h-full origin-left bg-bone"
-                style={{ scaleX: i === index && phase === 'reel' ? progress : i < index || phase === 'end' ? 1 : 0 }}
+                style={{ scaleX: i === index && phase === 'slides' ? progress : i < index || phase === 'end' ? 1 : 0 }}
               />
             </div>
           ))}
         </div>
       )}
 
-      {/* reel */}
-      <div className="relative z-10 flex h-full items-center justify-center px-6 text-center">
+      {/* slides — nothing in here is interactive, so taps fall through to the side zones */}
+      <div className="pointer-events-none relative z-10 flex h-full items-center justify-center px-6 text-center">
         <AnimatePresence mode="wait">
-          {phase === 'reel' && (
+          {phase === 'slides' && (
             <motion.div
               key={index}
               className="max-w-4xl"
@@ -136,7 +142,7 @@ export default function PlayIntro({ onClose }: { onClose: () => void }) {
               transition={{ duration: 0.7, ease: EASE }}
             >
               <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.5em] text-crimson-2 sm:text-xs">
-                Episode {String(index + 1).padStart(2, '0')} · {slide.kicker}
+                {String(index + 1).padStart(2, '0')} / {String(introSlides.length).padStart(2, '0')} · {slide.kicker}
               </p>
               <h2 className="font-display leading-[0.88] text-bone" style={{ fontSize: 'clamp(3rem, 10vw, 8.5rem)' }}>
                 {slide.title}
@@ -173,7 +179,7 @@ export default function PlayIntro({ onClose }: { onClose: () => void }) {
           )}
           {phase === 'end' && (
             <motion.div key="end" initial={{ opacity: 0, letterSpacing: '0.6em' }} animate={{ opacity: 1, letterSpacing: '0.2em' }} transition={{ duration: 1.2, ease: EASE }}>
-              <p className="font-display text-5xl text-bone sm:text-7xl">NOW STREAMING</p>
+              <p className="font-display text-5xl text-bone sm:text-7xl">THAT&apos;S THE OVERVIEW</p>
               <p className="mt-3 text-xs font-semibold tracking-[0.4em] text-mist">{profile.displayName.toUpperCase()}</p>
             </motion.div>
           )}
@@ -181,20 +187,21 @@ export default function PlayIntro({ onClose }: { onClose: () => void }) {
       </div>
 
       {/* tap zones (mobile-friendly) */}
-      {phase === 'reel' && (
+      {phase === 'slides' && (
         <>
-          <button type="button" aria-label="Previous highlight" className="absolute inset-y-0 left-0 z-[5] w-1/4" onClick={prev} />
-          <button type="button" aria-label="Next highlight" data-cursor="play" className="absolute inset-y-0 right-0 z-[5] w-1/4" onClick={next} />
+          <button type="button" aria-label="Previous slide" className="absolute inset-y-0 left-0 z-[5] w-1/4" onClick={prev} />
+          <button type="button" aria-label="Next slide" data-cursor="play" className="absolute inset-y-0 right-0 z-[5] w-1/4" onClick={next} />
         </>
       )}
 
       {/* controls */}
       <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-10 sm:pb-8">
         <div className="flex items-center gap-2">
-          {phase === 'reel' && (
+          {phase === 'slides' && (
             <button
               type="button"
               onClick={() => setPaused((p) => !p)}
+              ref={pause}
               aria-label={paused ? 'Resume' : 'Pause'}
               className="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 text-bone transition hover:bg-white/10"
             >
@@ -209,7 +216,7 @@ export default function PlayIntro({ onClose }: { onClose: () => void }) {
           data-cursor="close"
           className="rounded-full bg-bone px-5 py-2.5 text-xs font-bold tracking-[0.18em] text-ink transition hover:bg-white"
         >
-          BACK TO BROWSE
+          BACK TO PORTFOLIO
         </button>
       </div>
     </motion.div>

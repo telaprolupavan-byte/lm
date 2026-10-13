@@ -8,7 +8,7 @@
   --color-crimson-2: #ff3d5a;
   --color-bone: #f4f1ec;
   --color-mist: #a7a6ad;
-  --color-smoke: #6d6c75;
+  --color-smoke: #8a8992;
   --font-display: 'Bebas Neue', 'Oswald', Impact, sans-serif;
   --font-serif: 'Instrument Serif', Georgia, serif;
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
@@ -24,6 +24,14 @@ html {
   position: relative;
   background: var(--color-ink);
   -webkit-text-size-adjust: 100%;
+  /* Overlays lock scrolling with overflow: hidden. Keeping the scrollbar's space stops the page shifting sideways. */
+  scrollbar-gutter: stable;
+}
+
+/* clip, not hidden: overflow-x: hidden on body makes it a scroll container while scrolling is locked, which unpins every sticky element. */
+html,
+body {
+  overflow-x: clip;
 }
 
 body {
@@ -33,7 +41,6 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
   text-rendering: optimizeLegibility;
 }
 
@@ -42,12 +49,7 @@ body {
   color: white;
 }
 
-.gutter {
-  padding-left: var(--gutter);
-  padding-right: var(--gutter);
-}
-
-/* Film grain — a single fixed layer, cheap and subtle */
+/* Grain texture — a single fixed layer, cheap and subtle */
 .grain {
   position: fixed;
   inset: -8%;
@@ -80,31 +82,37 @@ body {
   scroll-padding-inline: var(--gutter);
 }
 
-/* Custom cursor: hide the native one only when ours is active */
+/* Custom cursor: hide the native one only when ours is active. Un-layered, so it also beats cursor-* utilities. */
 .has-custom-cursor,
-.has-custom-cursor a,
-.has-custom-cursor button,
-.has-custom-cursor [role='button'] {
+.has-custom-cursor * {
   cursor: none;
 }
 
-.text-outline {
-  color: transparent;
-  -webkit-text-stroke: 2px rgba(244, 241, 236, 0.28);
-}
+/* Layered so Tailwind utilities on the same element (padding, hover backgrounds, radii) still win. */
+@layer components {
+  .gutter {
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+  }
 
-.glass {
-  /* No backdrop-filter: it re-blurs the page behind every glass element on each scroll frame. */
-  background: linear-gradient(180deg, rgba(40, 40, 48, 0.72), rgba(24, 24, 30, 0.72));
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 2px rgba(244, 241, 236, 0.28);
+  }
 
-.focus-ring:focus-visible,
-button:focus-visible,
-a:focus-visible {
-  outline: 2px solid var(--color-crimson-2);
-  outline-offset: 3px;
-  border-radius: 6px;
+  .glass {
+    /* No backdrop-filter: it re-blurs the page behind every glass element on each scroll frame.
+       background-image (not the shorthand) leaves background-color free for hover:bg-* utilities. */
+    background-image: linear-gradient(180deg, rgba(40, 40, 48, 0.72), rgba(24, 24, 30, 0.72));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .focus-ring:focus-visible,
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--color-crimson-2);
+    outline-offset: 3px;
+  }
 }
 
 .light-streak {
@@ -123,16 +131,19 @@ a:focus-visible {
 }
 
 @keyframes shimmer {
-  to { background-position: 200% center; }
+  from { background-position: 0% center; }
+  to { background-position: 100% center; }
 }
 .shimmer-text {
-  background: linear-gradient(90deg, #f4f1ec 0%, #f4f1ec 40%, #ff8a9a 50%, #f4f1ec 60%, #f4f1ec 100%);
-  background-size: 200% auto;
+  /* At 300% wide, both ends of the sweep show only bone, so the word rests evenly lit. */
+  background: linear-gradient(90deg, #f4f1ec 0%, #f4f1ec 42%, #ff8a9a 50%, #f4f1ec 58%, #f4f1ec 100%);
+  background-size: 300% auto;
+  background-position: 0% center;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   /* Two sweeps on arrival, then still — an endless shimmer repaints the giant title every frame. */
-  animation: shimmer 6s linear 2;
+  animation: shimmer 4s linear 2 both;
 }
 
 /* Gentle bob for the hero's floating chips */

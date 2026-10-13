@@ -1,95 +1,124 @@
-import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { skillCategories, skillEvidence, type Skill } from '../data/portfolio';
+import { useState, type KeyboardEvent } from 'react';
+import { motion } from 'framer-motion';
+import { skillCategories, skillEvidence, type SkillCategory } from '../data/portfolio';
 import { EASE, SectionHeading } from './fx';
 
 const HUES = ['#ff3d5a', '#4cc9ff', '#46e3a8', '#ffb547', '#b98bff', '#ff8a5c', '#7ee0ff'];
+const total = skillCategories.reduce((n, c) => n + c.skills.length, 0);
+
+function Dot({ hue }: { hue: string }) {
+  return <span aria-hidden className="inline-block h-1.5 w-1.5 shrink-0 rounded-full align-middle" style={{ background: hue }} />;
+}
 
 export default function Skills() {
-  const [cat, setCat] = useState(0);
-  const category = skillCategories[cat];
-  const hue = HUES[cat % HUES.length];
-
   return (
     <>
-      <SectionHeading kicker="Genres" title="My Skill Universe" aside={<p className="max-w-xs text-sm text-mist">Each skill shows where it appears in my work and projects.</p>} />
+      <SectionHeading
+        kicker="Toolkit"
+        title="Skills"
+        aside={
+          <p className="max-w-xs text-sm text-mist">
+            All {total} skills from my resume, by category. Select one marked <Dot hue={HUES[0]} /> to see where it shows up in my work and projects.
+          </p>
+        }
+      />
 
-      <div className="gutter grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-14">
-        {/* genre list */}
-        <div className="rail -mx-[var(--gutter)] flex gap-2 overflow-x-auto px-[var(--gutter)] lg:mx-0 lg:flex-col lg:gap-1 lg:overflow-visible lg:px-0" role="tablist" aria-label="Skill categories">
-          {skillCategories.map((c, i) => (
-            <button
-              key={c.id}
-              type="button"
-              role="tab"
-              aria-selected={i === cat}
-              onClick={() => setCat(i)}
-              className={`group relative shrink-0 rounded-lg px-4 py-3 text-left transition lg:px-5 ${i === cat ? 'text-bone' : 'text-smoke hover:text-bone'}`}
-            >
-              {i === cat && <motion.span layoutId="skill-tab" className="absolute inset-0 rounded-lg bg-white/[0.07] ring-1 ring-white/10" transition={{ duration: 0.45, ease: EASE }} />}
-              {i === cat && <motion.span layoutId="skill-bar" className="absolute bottom-2 left-0 top-2 hidden w-[3px] rounded lg:block" style={{ background: hue }} />}
-              <span className="relative block font-display text-2xl tracking-wide lg:text-3xl">{c.title}</span>
-              <span className="relative hidden text-xs text-smoke lg:block">
-                {c.skills.length} skills · {c.subtitle}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {/* skill cards */}
-        <div className="min-h-[340px]">
-          <AnimatePresence mode="wait">
-            <motion.div key={category.id} initial="hidden" animate="show" exit="exit" transition={{ staggerChildren: 0.05 }}>
-              <motion.p
-                className="mb-5 text-sm text-mist"
-                variants={{ hidden: { opacity: 0 }, show: { opacity: 1 }, exit: { opacity: 0 } }}
-              >
-                <span className="font-semibold text-bone">{category.title}</span> — {category.subtitle}
-              </motion.p>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-                {category.skills.map((s) => (
-                  <SkillCard key={s.name} skill={s} hue={hue} />
-                ))}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+      <div className="gutter grid gap-3">
+        {skillCategories.map((c, i) => (
+          <Category key={c.id} category={c} hue={HUES[i % HUES.length]} index={i} />
+        ))}
       </div>
     </>
   );
 }
 
-function SkillCard({ skill, hue }: { skill: Skill; hue: string }) {
-  const evidence = skillEvidence[skill.name];
+function Category({ category, hue, index }: { category: SkillCategory; hue: string; index: number }) {
+  const used = category.skills.filter((s) => skillEvidence[s.name]);
+  const [picked, setPicked] = useState(used[0]?.name);
+  const evidence = picked ? skillEvidence[picked] : undefined;
 
-  // Where each skill was used is always visible — no hover needed, so it reads the same on phones.
+  // One Tab stop per category: arrow keys (and Home/End) move between the marked skills, and the line below follows.
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const at = used.findIndex((s) => s.name === picked);
+    const to = { ArrowRight: at + 1, ArrowLeft: at - 1, Home: 0, End: used.length - 1 }[e.key];
+    if (to === undefined || !used.length) return;
+    e.preventDefault();
+    const next = used[(to + used.length) % used.length].name;
+    setPicked(next);
+    e.currentTarget.querySelector<HTMLElement>(`[data-skill="${CSS.escape(next)}"]`)?.focus();
+  };
+
+  const chip = 'inline-flex min-h-8 items-center gap-2 rounded-full border px-3 text-[13px] font-medium sm:min-h-9 sm:px-3.5 sm:text-sm';
+
   return (
-    <motion.article
-      variants={{
-        hidden: { opacity: 0, y: 24, scale: 0.94 },
-        show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.55, ease: EASE } },
-        exit: { opacity: 0, y: -12, transition: { duration: 0.2 } },
-      }}
-      whileHover={{ y: -6 }}
-      className="group relative flex min-h-[148px] flex-col overflow-hidden rounded-xl bg-ink-2 p-4 text-left ring-1 ring-white/10 transition-shadow duration-500 hover:ring-white/20"
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-6% 0px' }}
+      transition={{ duration: 0.7, delay: (index % 4) * 0.06, ease: EASE }}
+      className="group relative grid gap-3.5 overflow-hidden rounded-2xl bg-ink-2 p-4 ring-1 ring-white/10 transition-shadow duration-500 hover:ring-white/20 sm:p-5 md:grid-cols-[220px_minmax(0,1fr)] md:gap-8 lg:p-6"
     >
-      <div aria-hidden className="absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-0 blur-2xl transition duration-500 group-hover:opacity-60" style={{ background: hue }} />
-      <span
-        className="relative flex h-12 w-12 items-center justify-center rounded-lg font-display text-2xl tracking-wide transition-transform duration-300 group-hover:scale-110"
-        style={{ background: `${hue}1f`, color: hue, boxShadow: `inset 0 0 0 1px ${hue}55` }}
-        aria-hidden
-      >
-        {skill.mono}
-      </span>
-      <h4 className="relative mt-4 flex flex-wrap items-center gap-2 text-[15px] font-semibold text-bone">
-        {skill.name}
-        {skill.note && (
-          <span className="rounded px-1.5 py-px text-[9px] font-bold uppercase tracking-wider text-ink" style={{ background: hue }}>
-            {skill.note}
-          </span>
+      <span aria-hidden className="absolute bottom-5 left-0 top-5 w-[3px] rounded-r" style={{ background: hue }} />
+      <div aria-hidden className="pointer-events-none absolute -left-20 -top-20 h-48 w-48 rounded-full opacity-[0.14] blur-3xl transition duration-700 group-hover:opacity-30" style={{ background: hue }} />
+
+      <div className="relative">
+        <h3 className="font-display text-[1.75rem] leading-none sm:text-3xl tracking-wide text-bone lg:text-[2.1rem]">{category.title}</h3>
+        <p className="mt-1 text-xs text-smoke">
+          {category.skills.length} skills · {category.subtitle}
+        </p>
+      </div>
+
+      <div className="relative">
+        <div {...(used.length ? { role: 'toolbar', 'aria-label': `${category.title} skills` } : {})} onKeyDown={onKeyDown} className="flex flex-wrap gap-1.5 sm:gap-2">
+          {category.skills.map((s) => {
+            const core = s.note && (
+              <span className="rounded px-1.5 py-px text-[11px] font-bold uppercase leading-4 tracking-wide text-ink" style={{ background: hue }}>
+                {s.note}
+              </span>
+            );
+            const where = skillEvidence[s.name];
+            if (!where) {
+              return (
+                <span key={s.name} className={`${chip} border-white/10 text-bone/85`}>
+                  {s.name}
+                  {core}
+                </span>
+              );
+            }
+            const on = s.name === picked;
+            return (
+              <button
+                key={s.name}
+                type="button"
+                data-skill={s.name}
+                aria-pressed={on}
+                tabIndex={on ? 0 : -1}
+                title={where.join(' · ')}
+                onClick={() => setPicked(s.name)}
+                className={`${chip} text-bone transition ${on ? '' : 'border-white/15 bg-white/[0.06] hover:border-white/30 hover:bg-white/10'}`}
+                style={on ? { borderColor: hue, background: `${hue}29` } : undefined}
+              >
+                <Dot hue={hue} />
+                {s.name}
+                {core}
+              </button>
+            );
+          })}
+        </div>
+
+        {picked && evidence && (
+          <p className="mt-3 text-[13px] leading-snug text-mist">
+            <span className="font-semibold" style={{ color: hue }}>
+              {picked}
+            </span>
+            <span aria-hidden className="mx-1.5 text-smoke">
+              →
+            </span>
+            <span className="sr-only">: </span>
+            {evidence.join(' · ')}
+          </p>
         )}
-      </h4>
-      <p className="relative mt-2 text-[11px] leading-snug text-mist">{evidence ? evidence.join(' · ') : 'Listed in technical skills'}</p>
-    </motion.article>
+      </div>
+    </motion.div>
   );
 }
