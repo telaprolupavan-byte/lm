@@ -101,6 +101,7 @@ function Bullet({ children }: { children: string }) {
 export function ResumeSheet() {
   const contacts = [
     profile.email && { label: profile.email, href: `mailto:${profile.email}` },
+    profile.phone && { label: profile.phone, href: `tel:+1${profile.phone.replace(/\D/g, '')}` },
     profile.links.linkedin && { label: 'LinkedIn ↗', href: profile.links.linkedin },
     profile.links.github && { label: 'GitHub ↗', href: profile.links.github },
   ].filter((c): c is { label: string; href: string } => Boolean(c));

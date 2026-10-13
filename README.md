@@ -32,7 +32,7 @@ The static site is written to `dist/` and can be deployed as-is to Vercel, Netli
 | To change… | Edit |
 | --- | --- |
 | Name, intro, location, core toolkit | `profile` |
-| Email, LinkedIn, GitHub | `profile.email`, `profile.links` (empty values are hidden) |
+| Email, phone, LinkedIn, GitHub | `profile.email`, `profile.phone`, `profile.links` (empty values are hidden) |
 | Work history | `experience` |
 | A project, or a new one | `projects` (add an object; it appears in Originals, the overlay and the counts) |
 | Impact highlight cards | `achievements` |
@@ -46,11 +46,10 @@ The static site is written to `dist/` and can be deployed as-is to Vercel, Netli
 
 ### Still to fill in
 
-The resume this was built from had its contact details redacted and no photo, so a few things are waiting:
+1. **LinkedIn:** set `profile.links.linkedin` (and `github` if wanted). The buttons appear automatically.
+2. **Photo (optional):** see below. Until then, a data-art key visual (KPI ring, rising bars and trend line) stands in wherever the portrait appears.
 
-1. **Contact:** set `profile.email` and `profile.links.linkedin` (and `github` if wanted). The contact buttons, navbar CTA and resume header pick them up automatically.
-2. **Resume PDF:** put the file at `public/assets/Likitha_Magham_Resume.pdf` and set `profile.resumePdf: '/assets/Likitha_Magham_Resume.pdf'`. Until then, "View Resume" shows the designed resume sheet and the download buttons are hidden.
-3. **Photo:** see below. Until then, a data-art key visual (KPI ring, rising bars and trend line) stands in wherever the portrait appears.
+**Resume:** `public/assets/Likitha_Magham_Resume.pdf` was exported from the Word resume. To update it, replace that file (keep the name, or change `profile.resumePdf`).
 
 ### Photo
 

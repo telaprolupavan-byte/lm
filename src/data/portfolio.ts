@@ -22,17 +22,19 @@ export const profile = {
   intro:
     'A Data Analyst with 4+ years in analytics, business intelligence and reporting automation across retail and IT services, turning finance and operations requirements into dashboards and insights with SQL, Python, Power BI and Excel.',
   location: 'Grand Rapids, MI',
-  /** Fill these in to show the contact buttons. Empty values are hidden across the site. */
-  email: '',
+  /** Contact details. Empty values are hidden across the site. */
+  email: 'Likitham4968@gmail.com',
+  /** Shown on the resume sheet only. */
+  phone: '616-900-4968',
   links: {
     linkedin: '',
     github: '',
   },
   /**
-   * Path to the resume PDF in public/ (e.g. '/assets/Likitha_Magham_Resume.pdf').
-   * While it's '', "View Resume" shows the designed resume sheet and the download buttons are hidden.
+   * Path to the resume PDF in public/.
+   * Set to '' to hide the PDF viewer and download buttons ("View Resume" then shows the designed sheet).
    */
-  resumePdf: '',
+  resumePdf: '/assets/Likitha_Magham_Resume.pdf',
   resumeFileName: 'Likitha_Magham_Resume.pdf',
   /**
    * Set to the generated WebP portraits once a photo is added (see README → Photo).
