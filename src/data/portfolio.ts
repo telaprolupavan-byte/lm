@@ -10,6 +10,7 @@ export const profile = {
   fullName: 'Likitha Magham',
   displayName: 'Likitha Magham',
   firstName: 'LIKITHA',
+  lastName: 'MAGHAM',
   /** Initial used in the series mark, favicon and "ORIGINAL" badges. */
   initial: 'L',
   /** Shown in the centre of the data-art key visual while there's no photo. */
@@ -19,6 +20,11 @@ export const profile = {
   originalLabel: 'A MAGHAM ORIGINAL',
   role: 'Data Analyst',
   tagline: ['Data Analyst', 'SQL', 'Python', 'Power BI'],
+  /**
+   * Second half of the resume summary, in first person. Shown in About so it doesn't repeat the hero intro.
+   */
+  statement:
+    'I query and analyze large datasets, automate recurring reports, and build data validation and quality checks that reduce rework and improve reporting accuracy, working directly with finance, operations and business stakeholders to turn reporting requirements into dashboards and insights that support operational decisions.',
   intro:
     'A Data Analyst with 4+ years in analytics, business intelligence and reporting automation across retail and IT services, turning finance and operations requirements into dashboards and insights with SQL, Python, Power BI and Excel.',
   location: 'Grand Rapids, MI',
@@ -105,7 +111,7 @@ export type PipelineStep = { stage: string; tools: string; detail: string };
 export type Project = {
   id: string;
   title: string;
-  /** Year, date range or label shown on the badge. */
+  /** Year or date range shown on the badge; '' when the resume gives no date. */
   year: string;
   /** Where the work happened — shown in the resume sheet. */
   kind: 'Work' | 'Academic & Independent';
@@ -113,8 +119,10 @@ export type Project = {
   logline: string;
   stack: string[];
   build: string[];
-  features: string[];
+  /** Headline numbers. Leave empty when the resume gives none — the overlay then shows `outcomes` instead. */
   metrics: Metric[];
+  /** Plain-language results, rephrased from the resume, for projects without numbers. */
+  outcomes?: string[];
   /** The business problem, in one or two sentences — framed from the resume bullets. */
   brief: string;
   /** How the data flows, source to stakeholder. Shown as the case-study pipeline. */
@@ -132,19 +140,12 @@ export const projects: Project[] = [
   {
     id: 'meijer-operations-bi',
     title: 'Operations BI at Meijer',
-    year: '2025 – Now',
+    year: '2025 – Present',
     kind: 'Work',
     genre: 'Retail • Power BI • Snowflake',
     logline: 'Weekly operational reporting for finance and operations — dashboards, automated workflows and validated, report-ready data.',
     stack: ['Power BI', 'DAX', 'Snowflake', 'SQL', 'Python', 'Power Automate', 'UiPath'],
     build: [meijer[0], meijer[1], meijer[2], meijer[3], meijer[6]],
-    features: [
-      '4 Power BI dashboards for operational performance, process volume and KPIs',
-      'Snowflake SQL over 1M+ row datasets',
-      'Recurring reports automated with Power Automate and UiPath',
-      'Python / Pandas data preparation and profiling',
-      'Data validation checks for finance reporting',
-    ],
     metrics: [
       { value: '4', label: 'Power BI dashboards' },
       { value: '25', label: 'stakeholders with weekly visibility' },
@@ -170,17 +171,9 @@ export const projects: Project[] = [
     year: '2020 – 2023',
     kind: 'Work',
     genre: 'IT Services • Power BI • Automation',
-    logline: 'Self-service reporting for 40 stakeholders, built on data integrated from four sources and automated Excel reporting.',
+    logline: 'Self-service Power BI reporting for 40 stakeholders, data integrated from 4 sources, and recurring Excel reports automated to save 6 hours a week.',
     stack: ['Power BI', 'SQL', 'Power Query', 'Excel', 'Python', 'OpenPyXL', 'REST APIs'],
     build: [mphasis[0], mphasis[2], mphasis[3], mphasis[5], mphasis[7]],
-    features: [
-      '10 interactive Power BI dashboards',
-      'SQL with joins, aggregations and CTEs',
-      'Data integrated from 4 sources',
-      'Excel automation with PivotTables, Power Query and OpenPyXL',
-      'REST API data retrieval with Python Requests',
-      '15 KPIs defined with stakeholders, validated through UAT',
-    ],
     metrics: [
       { value: '10', label: 'Power BI dashboards' },
       { value: '40', label: 'stakeholders on self-service reporting' },
@@ -191,7 +184,7 @@ export const projects: Project[] = [
     palette: { from: '#1a0d02', via: '#8a4a07', to: '#0a0806', accent: '#ffb547' },
     brief: 'Stakeholders relied on ad hoc report requests, data sat across separate sources, and recurring reports were assembled by hand in Excel.',
     pipeline: [
-      { stage: 'Define', tools: 'Requirements · UAT', detail: '15 KPIs defined with stakeholders, validated through UAT' },
+      { stage: 'Define', tools: 'Requirements · UAT', detail: '15 KPIs defined with stakeholders; supported UAT on the reporting' },
       { stage: 'Collect', tools: 'SQL · REST APIs', detail: 'Joins, aggregations and CTEs; API data via Python Requests' },
       { stage: 'Integrate', tools: 'SQL · Power Query', detail: '4 sources into structured datasets — 30% faster report prep' },
       { stage: 'Automate', tools: 'Excel · OpenPyXL', detail: 'Recurring Excel reports automated — 6 hrs/week saved' },
@@ -202,7 +195,7 @@ export const projects: Project[] = [
   {
     id: 'supply-chain-reporting',
     title: 'Supply Chain Reporting',
-    year: 'Project',
+    year: '',
     kind: 'Academic & Independent',
     genre: 'Supply Chain • Dashboarding',
     logline: 'Power BI dashboards that give a single view of supply chain health — inventory, orders, delays and distribution.',
@@ -212,17 +205,11 @@ export const projects: Project[] = [
       'Queried and analyzed historical and near-real-time order data using SQL to identify delivery delay patterns, examine operational trends, and support supply chain planning.',
       'Compiled operational metrics into structured Excel reports used to compare performance across periods and flag potential bottlenecks.',
     ],
-    features: [
-      'Inventory movement monitoring',
-      'Order volume tracking',
-      'Delivery delay pattern analysis',
-      'Distribution performance views',
-      'Period-over-period Excel reports that flag bottlenecks',
-    ],
-    metrics: [
-      { value: '4', label: 'signals in one view: inventory, orders, delays, distribution' },
-      { value: '1', label: 'single view of supply chain health' },
-      { value: '3', label: 'tools: SQL, Power BI and Excel' },
+    metrics: [],
+    outcomes: [
+      'One view of supply chain health: inventory movement, order volumes, delivery delays and distribution performance',
+      'Delivery delay patterns identified from historical and near-real-time order data to support planning',
+      'Period-over-period Excel reports that flag potential bottlenecks',
     ],
     palette: { from: '#04121f', via: '#0f4c6e', to: '#05080d', accent: '#4cc9ff' },
     brief: 'Supply chain health was spread across inventory, order, delivery and distribution data, with no single view for spotting delays and bottlenecks.',
@@ -237,7 +224,7 @@ export const projects: Project[] = [
   {
     id: 'bi-reporting-system',
     title: 'BI Reporting System',
-    year: 'Project',
+    year: '',
     kind: 'Academic & Independent',
     genre: 'Business Intelligence • Data Modeling',
     logline: 'An end-to-end Power BI solution — from source data preparation to a unified reporting model and the final KPI views.',
@@ -247,22 +234,17 @@ export const projects: Project[] = [
       'Consolidated data from multiple datasets into a unified reporting model, improving consistency across reports and providing stakeholders with a more centralized view of business metrics.',
       'Collaborated with business users to gather requirements, define reporting metrics, and refine dashboard functionality to align with business needs and improve reporting usability.',
     ],
-    features: [
-      'Source data preparation',
-      'Unified reporting model across multiple datasets',
-      'KPI views for stakeholders',
-      'Requirements gathered with business users',
-    ],
-    metrics: [
-      { value: '3', label: 'layers: data prep → model → KPI views' },
-      { value: '1', label: 'unified reporting model across datasets' },
-      { value: '3', label: 'tools: Power BI, SQL and Excel' },
+    metrics: [],
+    outcomes: [
+      'One unified reporting model, so reports stay consistent across datasets',
+      'A more centralized view of business metrics for stakeholders',
+      'Dashboards refined with business users for usability',
     ],
     palette: { from: '#120822', via: '#3d1a6e', to: '#07060c', accent: '#b98bff' },
-    brief: 'Business metrics lived in several datasets, so reports disagreed and stakeholders had no central view of performance.',
+    brief: 'Business metrics were spread across multiple datasets, making it hard to keep reports consistent or give stakeholders one central view.',
     pipeline: [
-      { stage: 'Gather', tools: 'Business users', detail: 'Requirements and reporting metrics' },
-      { stage: 'Prepare', tools: 'SQL · Excel', detail: 'Source data preparation' },
+      { stage: 'Gather', tools: 'Requirements', detail: 'Reporting metrics defined with business users' },
+      { stage: 'Prepare', tools: 'Power BI', detail: 'Source data preparation' },
       { stage: 'Model', tools: 'Power BI', detail: 'One unified reporting model across datasets' },
       { stage: 'Visualize', tools: 'Power BI', detail: 'KPI views, refined with business users' },
     ],
@@ -283,37 +265,37 @@ export type Achievement = {
 export const achievements: Achievement[] = [
   {
     id: 'hours-saved',
-    title: '10 Hours a Week',
+    title: '10 Hours Saved Weekly',
     org: 'Meijer',
-    detail: 'Automated 6 recurring reports and data workflows with Power Automate, UiPath and Power BI.',
+    detail: 'Automated 6 recurring reports and data workflows with Power Automate, UiPath and Power BI, cutting manual effort by 10 hours a week.',
     laurel: 'Automation',
   },
   {
     id: 'million-rows',
     title: '1M+ Rows',
     org: 'Meijer · Snowflake',
-    detail: 'SQL to extract, join and aggregate datasets for operational trend, volume and process-flow analysis.',
+    detail: 'Wrote Snowflake SQL to extract, join and aggregate 1M+ row datasets for trend, volume and process-flow analysis.',
     laurel: 'Scale',
   },
   {
     id: 'self-service',
     title: '40 Stakeholders',
     org: 'Mphasis',
-    detail: '10 interactive Power BI dashboards gave self-service reporting and reduced ad hoc requests.',
+    detail: 'Built 10 interactive Power BI dashboards that gave 40 stakeholders self-service reporting and reduced ad hoc requests.',
     laurel: 'Self-Service BI',
   },
   {
     id: 'faster-prep',
     title: '30% Faster',
     org: 'Mphasis',
-    detail: 'Integrated data from 4 sources with SQL and Power Query, cutting report preparation time.',
+    detail: 'Integrated data from 4 sources with SQL and Power Query, cutting report preparation time by 30%.',
     laurel: 'Integration',
   },
   {
     id: 'kpis',
     title: '15 KPIs',
     org: 'Mphasis',
-    detail: 'Defined with stakeholders from documented requirements, then validated through UAT.',
+    detail: 'Gathered and documented requirements, defined 15 KPIs with stakeholders, and supported UAT to validate the reporting.',
     laurel: 'Business Partner',
   },
 ];
@@ -424,7 +406,8 @@ export const skillEvidence: Record<string, string[]> = {
   Pandas: ['Meijer — cleaning & profiling', 'Mphasis — EDA'],
   NumPy: ['Meijer — EDA', 'Mphasis — EDA'],
   'Power BI': ['Meijer — 4 dashboards', 'Mphasis — 10 dashboards', 'Supply Chain Reporting', 'BI Reporting System'],
-  DAX: ['Meijer dashboards', 'Mphasis'],
+  DAX: ['Meijer — 4 dashboards', 'Mphasis — dashboards'],
+  ETL: ['Meijer — SQL, Python & Power Query transformations', 'Mphasis — 4-source integration'],
   'Power Query': ['Meijer — transformations', 'Mphasis — 4-source integration'],
   'Data Modeling': ['Meijer dashboards', 'BI Reporting System — unified model'],
   Matplotlib: ['Meijer — EDA', 'Mphasis — EDA'],
@@ -474,7 +457,7 @@ export const seasons: Season[] = [
   {
     number: 1,
     title: 'The Foundation',
-    period: 'Class of 2021',
+    period: 'Graduated 2021',
     synopsis: 'A Bachelor of Science in Computer Science at Sathyabama University, Chennai.',
     episodes: [
       {
@@ -514,7 +497,7 @@ export const seasons: Season[] = [
         title: 'The Automator',
         description: 'Recurring Excel reports automated with PivotTables, Power Query and formulas — 6 hours a week back. Workbooks scripted in Python with OpenPyXL; data pulled from REST APIs.',
         tags: ['Excel', 'OpenPyXL', 'REST APIs'],
-        runtime: '6 hrs / week',
+        runtime: '6 hrs/week',
         palette: jade,
       },
       {
@@ -531,7 +514,7 @@ export const seasons: Season[] = [
     number: 3,
     title: 'The Master’s',
     period: 'Graduated 2025',
-    synopsis: 'A Master of Science in Computer Science at Grand Valley State University, plus two independent BI productions.',
+    synopsis: 'A Master of Science in Computer Science at Grand Valley State University, Allendale, MI.',
     episodes: [
       {
         code: 'S03 E01',
@@ -540,22 +523,6 @@ export const seasons: Season[] = [
         tags: ['M.S.', 'Computer Science'],
         runtime: 'August 2025',
         palette: violet,
-      },
-      {
-        code: 'S03 E02',
-        title: 'The Supply Chain Story',
-        description: 'Power BI dashboards and SQL analysis across inventory, orders, delivery delays and distribution — one view of supply chain health.',
-        tags: ['SQL', 'Power BI', 'Excel'],
-        runtime: 'Original',
-        palette: ocean,
-      },
-      {
-        code: 'S03 E03',
-        title: 'The Reporting Model',
-        description: 'An end-to-end BI reporting system: source data preparation, a unified reporting model and the final KPI views.',
-        tags: ['Power BI', 'Data Modeling'],
-        runtime: 'Original',
-        palette: amber,
       },
     ],
   },
@@ -570,7 +537,7 @@ export const seasons: Season[] = [
         title: 'The Retail Analyst',
         description: '4 Power BI dashboards on operational performance, process volume and KPIs — weekly visibility for 25 stakeholders.',
         tags: ['Power BI', 'DAX', 'Data Modeling'],
-        runtime: 'Apr 2025 – Now',
+        runtime: 'Apr 2025 – Present',
         palette: crimson,
       },
       {
@@ -586,7 +553,7 @@ export const seasons: Season[] = [
         title: 'The Automator Returns',
         description: '6 recurring reports and data workflows automated with Power Automate, UiPath and Power BI — 10 hours a week saved.',
         tags: ['Power Automate', 'UiPath'],
-        runtime: '10 hrs / week',
+        runtime: '10 hrs/week',
         palette: jade,
       },
       {
@@ -599,21 +566,31 @@ export const seasons: Season[] = [
       },
     ],
   },
-];
-
-export type TopPick = { label: string; title: string; detail: string; palette: Palette };
-
-export const topPicks: TopPick[] = [
-  { label: 'Core language', title: 'SQL', detail: 'Joins, aggregations & CTEs • Snowflake', palette: amber },
-  { label: 'Biggest dataset', title: '1M+ Rows', detail: 'Queried in Snowflake at Meijer', palette: ocean },
-  { label: 'Time given back', title: '10 hrs / week', detail: '6 reports automated at Meijer', palette: jade },
-  { label: 'Dashboards shipped', title: '14', detail: '10 at Mphasis • 4 at Meijer', palette: crimson },
-  { label: 'Widest audience', title: '40 Stakeholders', detail: 'Self-service reporting at Mphasis', palette: violet },
-  { label: 'Faster reporting', title: '30%', detail: 'Less report prep • 4 sources integrated', palette: amber },
-  { label: 'Business partner', title: '15 KPIs', detail: 'Defined with stakeholders • validated in UAT', palette: ocean },
-  { label: 'Experience', title: '4+ Years', detail: 'Retail & IT services operations', palette: jade },
-  { label: 'Latest degree', title: 'M.S. CS', detail: 'Grand Valley State University • 2025', palette: violet },
-  { label: 'Now streaming', title: 'Meijer', detail: 'Data Analyst since April 2025', palette: crimson },
+  {
+    /** Season 0 renders as "Specials": the resume gives these projects no dates. */
+    number: 0,
+    title: 'Specials',
+    period: 'Academic & Independent',
+    synopsis: 'Two BI projects from the resume, outside any one role.',
+    episodes: [
+      {
+        code: 'SP E01',
+        title: 'The Supply Chain Story',
+        description: 'Power BI dashboards and SQL analysis across inventory, orders, delivery delays and distribution — one view of supply chain health.',
+        tags: ['SQL', 'Power BI', 'Excel'],
+        runtime: 'Academic & Independent',
+        palette: ocean,
+      },
+      {
+        code: 'SP E02',
+        title: 'The Reporting Model',
+        description: 'An end-to-end BI reporting system: source data preparation, a unified reporting model and the final KPI views.',
+        tags: ['Power BI', 'Data Modeling'],
+        runtime: 'Academic & Independent',
+        palette: amber,
+      },
+    ],
+  },
 ];
 
 /** Slides for the "▶ Play Intro" cinematic sequence. */
@@ -640,7 +617,7 @@ export const introSlides: IntroSlide[] = [
   {
     kicker: 'Automation',
     title: 'Hours Back',
-    lines: ['10 hrs / week — 6 reports automated at Meijer', '6 hrs / week — Excel reporting automated at Mphasis', '30% less report prep — 4 sources integrated'],
+    lines: ['10 hrs/week — 6 reports automated at Meijer', '6 hrs/week — Excel reporting automated at Mphasis', '30% less report prep — 4 sources integrated'],
   },
   {
     kicker: 'Projects',
@@ -655,7 +632,7 @@ export const introSlides: IntroSlide[] = [
 ];
 
 export type ProfileId = 'likitha' | 'recruiter' | 'analyst' | 'creative';
-export type SectionId = 'about' | 'report' | 'journey' | 'originals' | 'picks' | 'skills' | 'moments' | 'story';
+export type SectionId = 'about' | 'report' | 'journey' | 'originals' | 'skills' | 'moments' | 'story';
 
 export const viewerProfiles: {
   id: ProfileId;
@@ -669,39 +646,40 @@ export const viewerProfiles: {
     name: 'Likitha',
     blurb: 'The full series, in order',
     color: '#e5132b',
-    order: ['about', 'report', 'journey', 'originals', 'picks', 'skills', 'moments', 'story'],
+    order: ['about', 'report', 'journey', 'originals', 'skills', 'moments', 'story'],
   },
   {
     id: 'recruiter',
     name: 'Recruiter',
     blurb: 'Resume, impact & skills first',
     color: '#4cc9ff',
-    order: ['story', 'report', 'moments', 'skills', 'originals', 'about', 'journey', 'picks'],
+    order: ['story', 'report', 'moments', 'skills', 'originals', 'about', 'journey'],
   },
   {
     id: 'analyst',
     name: 'Data Team',
     blurb: 'Dashboards, stack & projects first',
     color: '#46e3a8',
-    order: ['report', 'originals', 'skills', 'moments', 'journey', 'about', 'picks', 'story'],
+    order: ['report', 'originals', 'skills', 'moments', 'journey', 'about', 'story'],
   },
   {
     id: 'creative',
     name: 'Creative',
     blurb: 'The story arc & highlights first',
     color: '#ffb547',
-    order: ['journey', 'picks', 'originals', 'report', 'moments', 'about', 'skills', 'story'],
+    order: ['journey', 'originals', 'report', 'moments', 'about', 'skills', 'story'],
   },
 ];
 
+/** Numbered seasons only — "Specials" (season 0) isn't counted as a season. */
+export const seasonCount = seasons.filter((s) => s.number > 0).length;
 const episodeCount = seasons.reduce((n, s) => n + s.episodes.length, 0);
 
 export const sectionMeta: Record<SectionId, { nav: string; card: string; meta: string; palette: Palette }> = {
   about: { nav: 'About', card: 'About Me', meta: 'The Pilot • Experience & education', palette: violet },
   report: { nav: 'Dashboard', card: 'The Dashboard', meta: 'Interactive career report', palette: ocean },
-  journey: { nav: 'Journey', card: 'My Journey', meta: `${seasons.length} Seasons • ${episodeCount} Episodes`, palette: amber },
-  originals: { nav: 'Originals', card: 'My Projects', meta: `${projects.length} Originals • 2020 – Now`, palette: crimson },
-  picks: { nav: 'Top Picks', card: 'Top Picks', meta: 'Top 10 from the resume', palette: jade },
+  journey: { nav: 'Journey', card: 'My Journey', meta: `${seasonCount} Seasons + Specials • ${episodeCount} Episodes`, palette: amber },
+  originals: { nav: 'Originals', card: 'My Projects', meta: `${projects.length} Originals • 2020 – Present`, palette: crimson },
   skills: { nav: 'Skills', card: 'My Skills', meta: `${skillCategories.length} Categories`, palette: ocean },
   moments: {
     nav: 'Impact',
@@ -727,11 +705,11 @@ export const careerKpis: Kpi[] = [
   { label: 'Hours saved each week', value: 10, note: 'Current role · 6 more at Mphasis' },
 ];
 
-/** Same measure, two roles — each measure is its own small chart with its own scale. */
+/** Same measure, two roles — each measure is its own small chart with its own scale. `*` marks the ongoing role. */
 export const impactByRole: { measure: string; rows: { role: string; value: number }[] }[] = [
-  { measure: 'Power BI dashboards', rows: [{ role: 'Mphasis', value: 10 }, { role: 'Meijer', value: 4 }] },
-  { measure: 'Stakeholders served', rows: [{ role: 'Mphasis', value: 40 }, { role: 'Meijer', value: 25 }] },
-  { measure: 'Hours saved per week', rows: [{ role: 'Mphasis', value: 6 }, { role: 'Meijer', value: 10 }] },
+  { measure: 'Power BI dashboards', rows: [{ role: 'Mphasis', value: 10 }, { role: 'Meijer*', value: 4 }] },
+  { measure: 'Stakeholders served', rows: [{ role: 'Mphasis', value: 40 }, { role: 'Meijer*', value: 25 }] },
+  { measure: 'Hours saved per week', rows: [{ role: 'Mphasis', value: 6 }, { role: 'Meijer*', value: 10 }] },
 ];
 
 /** Career timeline. `end: null` means present. Education shows as a milestone at its completion date. */
@@ -760,13 +738,14 @@ export const toolRows: { name: string; pattern: RegExp }[] = [
   { name: 'Snowflake', pattern: /Snowflake/ },
   { name: 'Power Automate · UiPath', pattern: /Power Automate|UiPath/ },
   { name: 'OpenPyXL · REST APIs', pattern: /OpenPyXL|REST API/ },
-  { name: 'Data validation & quality', pattern: /validat|data quality|missing values|duplicate/i },
+  { name: 'Data validation & quality', pattern: /data validation|validation checks|validate report output|data quality|missing values|duplicate/i },
   { name: 'Requirements & KPIs', pattern: /requirements|\bKPIs?\b/ },
 ];
 
 export const toolColumns: { id: string; label: string; sub: string; bullets: string[] }[] = [
   { id: 'meijer', label: 'Meijer', sub: '2025 – now', bullets: experience[0].points },
   { id: 'mphasis', label: 'Mphasis', sub: '2020 – 2023', bullets: experience[1].points },
-  { id: 'supply-chain', label: 'Supply Chain', sub: 'Project', bullets: projects[2].build },
-  { id: 'bi-system', label: 'BI System', sub: 'Project', bullets: projects[3].build },
+  // Projects also count their resume "Technologies:" line.
+  { id: 'supply-chain', label: 'Supply Chain', sub: 'Project', bullets: [...projects[2].build, `Technologies: ${projects[2].stack.join(', ')}`] },
+  { id: 'bi-system', label: 'BI System', sub: 'Project', bullets: [...projects[3].build, `Technologies: ${projects[3].stack.join(', ')}`] },
 ];

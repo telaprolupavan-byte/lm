@@ -196,17 +196,6 @@ export default function ProjectModal({ project, onClose, onSwitch }: { project: 
                     ))}
                   </div>
                 </motion.section>
-                <motion.section variants={block}>
-                  <h3 className="mb-4 text-[11px] font-bold uppercase tracking-[0.3em] text-crimson-2">Key Features</h3>
-                  <ul className="space-y-2.5">
-                    {project.features.map((f) => (
-                      <li key={f} className="flex items-start gap-3 text-sm text-bone/85">
-                        <span className="text-crimson-2">✓</span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </motion.section>
               </div>
             </div>
 

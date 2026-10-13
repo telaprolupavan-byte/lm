@@ -36,11 +36,16 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const lock = useCallback(() => {
     locks.current += 1;
     document.documentElement.style.overflow = 'hidden';
+    // Lets ambient effects (e.g. particles) pause while an overlay covers the page.
+    document.documentElement.dataset.locked = '1';
   }, []);
 
   const unlock = useCallback(() => {
     locks.current = Math.max(0, locks.current - 1);
-    if (locks.current === 0) document.documentElement.style.overflow = '';
+    if (locks.current === 0) {
+      document.documentElement.style.overflow = '';
+      delete document.documentElement.dataset.locked;
+    }
   }, []);
 
   return <ScrollCtx.Provider value={{ scrollTo, lock, unlock }}>{children}</ScrollCtx.Provider>;
